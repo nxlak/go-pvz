@@ -1,13 +1,17 @@
 package service
 
 import (
-	"errors"
 	"time"
 )
 
 func (s *ServiceImpl) AcceptOrder(orderId, userId string, expiresAt time.Time) error {
-	if err := validateAccept(orderId, userId, expiresAt); err != nil {
-		return errors.New("Invalid data")
+	order, err := validateAccept(orderId, userId, expiresAt)
+	if err != nil {
+		return err
+	}
+
+	if err := appendOrder(order); err != nil {
+		return err
 	}
 
 	return nil

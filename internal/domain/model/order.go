@@ -17,9 +17,10 @@ const (
 )
 
 type Order struct {
-	Id          string
-	UserId      string
-	ExpiresAt   time.Time
-	CompletedAt time.Time
-	Status      OrderStatus
+	Id          string      `json:"id"`
+	UserId      string      `json:"user_id"`
+	CreatedAt   time.Time   `json:"created_at"`
+	ExpiresAt   time.Time   `json:"expires_at"`
+	CompletedAt time.Time   `json:"completed_at"`
+	Status      OrderStatus `json:"status"`
 }

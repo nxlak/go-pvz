@@ -7,8 +7,7 @@ import (
 type Service interface {
 	AcceptOrder(orderId, UserId string, expiresAt time.Time) error
 
-	// ...
-
+	ReturnOrder(orderId string) error
 }
 
 type ServiceImpl struct{}
