@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func ReturnOrder(orderId string) error {
+func (s *ServiceImpl) ReturnOrder(orderId string) error {
 	orders, err := readAllOrders()
 	if err != nil {
 		return err

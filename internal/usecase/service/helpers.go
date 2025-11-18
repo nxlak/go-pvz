@@ -43,7 +43,7 @@ func deleteOrder(idx int) error {
 }
 
 func validateReturn(order model.Order) error {
-	if order.Status != model.StatusCompleted && order.ExpiresAt.Before(time.Now()) {
+	if order.Status != model.StatusIssued && order.ExpiresAt.Before(time.Now()) {
 		return nil
 	}
 	return fmt.Errorf("Can't delete this order")

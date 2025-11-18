@@ -9,7 +9,7 @@ type OrderStatus string
 const (
 	StatusAccepted OrderStatus = "ACCEPTED"
 
-	StatusCompleted OrderStatus = "COMPLETED" // заказ выдан человеку
+	StatusIssued OrderStatus = "ISSUED" // заказ выдан человеку
 
 	StatusReturned OrderStatus = "RETURNED"
 

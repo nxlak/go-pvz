@@ -5,9 +5,11 @@ import (
 )
 
 type Service interface {
-	AcceptOrder(orderId, UserId string, expiresAt time.Time) error
+	AcceptOrder(orderId, userId string, expiresAt time.Time) error
 
 	ReturnOrder(orderId string) error
+
+	IssueOrder(userId string, orderIds []string) (map[string]error, error)
 }
 
 type ServiceImpl struct{}
