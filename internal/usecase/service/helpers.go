@@ -1,7 +1,6 @@
 package service
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,42 +8,6 @@ import (
 
 	"github.com/nxlak/go-pvz/internal/domain/model"
 )
-
-const OrdersFilePath = "orders.txt"
-
-func readAllOrders() ([]model.Order, error) {
-	file, err := os.Open(OrdersFilePath)
-	if os.IsNotExist(err) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var orders []model.Order
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Bytes()
-
-		if len(line) == 0 {
-			continue
-		}
-
-		var order model.Order
-		if err := json.Unmarshal(line, &order); err != nil {
-			return nil, fmt.Errorf("failed to parse order line: %w", err)
-		}
-
-		orders = append(orders, order)
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	return orders, nil
-}
 
 func appendOrder(order model.Order) error {
 	f, err := os.OpenFile(OrdersFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
@@ -64,6 +27,28 @@ func appendOrder(order model.Order) error {
 	return nil
 }
 
+func deleteOrder(idx int) error {
+	orders, err := readAllOrders()
+	if err != nil {
+		return err
+	}
+
+	orders = append(orders[:idx], orders[idx+1:]...)
+
+	if err := writeAllOrders(orders); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateReturn(order model.Order) error {
+	if order.Status != model.StatusCompleted && order.ExpiresAt.Before(time.Now()) {
+		return nil
+	}
+	return fmt.Errorf("Can't delete this order")
+}
+
 func validateAccept(orderId, userId string, expiresAt time.Time) (model.Order, error) {
 	orders, err := readAllOrders()
 	if err != nil {
@@ -72,12 +57,11 @@ func validateAccept(orderId, userId string, expiresAt time.Time) (model.Order, e
 
 	for _, order := range orders {
 		if order.Id == orderId {
-			return model.Order{}, fmt.Errorf("Order already exists!")
+			return model.Order{}, fmt.Errorf("Order already exists")
 		}
 	}
 
-	now := time.Now()
-	if expiresAt.Before(now) {
+	if expiresAt.Before(time.Now()) {
 		return model.Order{}, fmt.Errorf("Incorrect expire time")
 	}
 
