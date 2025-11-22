@@ -9,8 +9,12 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/nxlak/go-pvz/internal/config/storage"
+	storage "github.com/nxlak/go-pvz/internal/config"
 	"github.com/nxlak/go-pvz/pkg/utils"
+)
+
+const (
+	MAX_CONNECTIONS = 10
 )
 
 type Client interface {
@@ -30,7 +34,7 @@ func NewClient(ctx context.Context, sc storage.StorageConfig) (*pgxpool.Pool, er
 		return nil, fmt.Errorf("parse config: %w", err)
 	}
 
-	cfg.MaxConns = int32(sc.MaxConnections)
+	cfg.MaxConns = int32(MAX_CONNECTIONS)
 
 	pool, err := pgxpool.NewWithConfig(ctx, cfg)
 	if err != nil {
@@ -43,11 +47,11 @@ func NewClient(ctx context.Context, sc storage.StorageConfig) (*pgxpool.Pool, er
 
 		return pool.Ping(ctx)
 
-	}, sc.MaxConnections, 5*time.Second)
+	}, MAX_CONNECTIONS, 5*time.Second)
 
 	if err != nil {
 		pool.Close()
-		return nil, fmt.Errorf("unable to ping postgres after %d attempts: %w", sc.ConnectAttempts, err)
+		return nil, fmt.Errorf("unable to ping postgres after %d attempts: %w", MAX_CONNECTIONS, err)
 	}
 
 	return pool, nil
