@@ -103,5 +103,16 @@ func (r *repository) FindOne(ctx context.Context, id string) (*model.Order, erro
 }
 
 func (r *repository) FindAll(ctx context.Context) (o []*model.Order, err error) {
-	panic("unimplemented")
+	rows, err := r.client.Query(ctx, listAllSQL)
+	if err != nil {
+		return nil, errs.Wrap(errs.CodeDatabaseError, "failed to list all orders", err)
+	}
+	defer rows.Close()
+
+	orders, err := scanOrders(rows)
+	if err != nil {
+		return nil, errs.Wrap(errs.CodeDatabaseError, "failed to scan orders", err)
+	}
+
+	return orders, nil
 }
