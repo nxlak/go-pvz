@@ -25,7 +25,6 @@ type Client interface {
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 }
 
-// ДОБАВИТЬ ЛОГГЕР ВМЕСТО fmt....
 func NewClient(ctx context.Context, sc storage.StorageConfig) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", sc.Username, sc.Password, sc.Host, sc.Port, sc.Database)
 
