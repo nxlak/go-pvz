@@ -2,61 +2,27 @@ package postgres
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/nxlak/go-pvz/internal/domain/codes"
 	"github.com/nxlak/go-pvz/internal/domain/model"
 	order "github.com/nxlak/go-pvz/internal/repository/storage"
 	"github.com/nxlak/go-pvz/pkg/client/postgres"
+	"github.com/nxlak/go-pvz/pkg/errs"
 )
 
 type repository struct {
 	client postgres.Client
 }
 
-const (
-	insertOrderSQL = `
-		INSERT INTO orders (
-			id, user_id, status, created_at, 
-			expires_at, issued_at, returned_at
-		) VALUES (
-			$1,$2,$3,$4,
-			$5,$6,$7
-		);`
+func NewRepositoty(client postgres.Client) order.Repository {
+	return &repository{client: client}
+}
 
-	updateOrderSQL = `
-		UPDATE orders SET
-			user_id      = $2,
-			status       = $3,
-			expires_at   = $4,
-			issued_at    = $5,
-			returned_at  = $6,
-			package      = $7,
-			weight       = $8,
-			price        = $9,
-			total_price  = $10
-		WHERE id = $1;`
-
-	selectOrderSQL = `
-		SELECT
-			id, user_id, status, expires_at,
-			issued_at, returned_at, created_at,
-			package, weight, price, total_price
-		FROM orders
-		WHERE id = $1;`
-
-	deleteOrderSQL = `DELETE FROM orders WHERE id = $1;`
-
-	listAllSQL = `
-		SELECT
-			id, user_id, status, expires_at,
-			issued_at, returned_at, created_at,
-			package, weight, price, total_price
-		FROM orders
-		ORDER BY created_at ASC, id ASC;`
-)
-
-func (r *repository) Create(ctx context.Context, order model.Order) error {
+func (r *repository) Create(ctx context.Context, order *model.Order) error {
 	_, err := r.client.Exec(ctx, insertOrderSQL,
 		order.Id,
 		order.UserId,
@@ -66,44 +32,76 @@ func (r *repository) Create(ctx context.Context, order model.Order) error {
 		order.IssuedAt,
 		order.ReturnedAt,
 	)
-	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			newError := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s", pgErr.Message, pgErr.Detail, pgErr.Where))
-			fmt.Println(newError)
-			return nil
-		}
-		return err
+	if err == nil {
+		return nil
 	}
 
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+		return codes.ErrOrderAlreadyExists
+	}
+
+	return errs.Wrap(
+		errs.CodeDatabaseError,
+		"failed to insert order",
+		err,
+		"order_id", order.Id,
+	)
+}
+
+func (r *repository) Update(ctx context.Context, order *model.Order) error {
+	tag, err := r.client.Exec(ctx, updateOrderSQL,
+		order.Id,
+		order.UserId,
+		order.Status,
+		order.CreatedAt,
+		order.ExpiresAt,
+		order.IssuedAt,
+		order.ReturnedAt,
+	)
+	if err != nil {
+		return errs.Wrap(errs.CodeDatabaseError,
+			"failed to update order", err, "order_id", order.Id)
+	}
+	if tag.RowsAffected() == 0 {
+		return codes.ErrOrderNotFound
+	}
 	return nil
 }
 
 func (r *repository) Delete(ctx context.Context, id string) error {
-	_, err := r.client.Exec(ctx, deleteOrderSQL, id)
+	tag, err := r.client.Exec(ctx, deleteOrderSQL, id)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			newError := fmt.Errorf(fmt.Sprintf("SQL Error: %s, Detail: %s, Where: %s", pgErr.Message, pgErr.Detail, pgErr.Where))
-			fmt.Println(newError)
-			return nil
-		}
-		return err
+		return errs.Wrap(errs.CodeDatabaseError,
+			"failed to delete order", err, "order_id", id)
 	}
-
+	if tag.RowsAffected() == 0 {
+		return codes.ErrOrderNotFound
+	}
 	return nil
 }
 
-func (r *repository) FindAll(ctx context.Context) (o []model.Order, err error) {
-	panic("unimplemented")
+func (r *repository) FindOne(ctx context.Context, id string) (*model.Order, error) {
+	var o model.Order
+	if err := r.client.QueryRow(ctx, selectOrderSQL, id).Scan(
+		&o.Id,
+		&o.UserId,
+		&o.Status,
+		&o.CreatedAt,
+		&o.ExpiresAt,
+		&o.IssuedAt,
+		&o.ReturnedAt,
+	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, codes.ErrOrderNotFound
+		}
+		return nil, errs.Wrap(errs.CodeDatabaseError,
+			"failed to find order", err, "order_id", id)
+	}
+
+	return &o, nil
 }
 
-func (r *repository) FindOne(ctx context.Context, id string) (model.Order, error) {
+func (r *repository) FindAll(ctx context.Context) (o []*model.Order, err error) {
 	panic("unimplemented")
-}
-
-func (r *repository) Update(ctx context.Context, order model.Order) error {
-	panic("unimplemented")
-}
-
-func NewRepositoty(client postgres.Client) order.Repository {
-	return &repository{client: client}
 }
