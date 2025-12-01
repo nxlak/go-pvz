@@ -1,32 +1,18 @@
 package service
 
-import (
-	"fmt"
-)
+import "context"
 
 func (s *ServiceImpl) ReturnOrder(orderId string) error {
-	orders, err := readAllOrders()
+	order, err := s.orderRepo.FindOne(context.TODO(), orderId)
 	if err != nil {
 		return err
 	}
-
-	idx := -1
-	for i, o := range orders {
-		if o.Id == orderId {
-			idx = i
-		}
-	}
-
-	if idx == -1 {
-		return fmt.Errorf("order wasnt found")
-	}
-	order := orders[idx]
 
 	if err := validateReturn(order); err != nil {
 		return err
 	}
 
-	if err := deleteOrder(idx); err != nil {
+	if err := s.orderRepo.Delete(context.TODO(), orderId); err != nil {
 		return err
 	}
 

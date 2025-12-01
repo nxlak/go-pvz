@@ -1,16 +1,25 @@
 package service
 
 import (
+	"context"
 	"time"
+
+	"github.com/nxlak/go-pvz/internal/domain/model"
 )
 
 func (s *ServiceImpl) AcceptOrder(orderId, userId string, expiresAt time.Time) error {
-	order, err := validateAccept(orderId, userId, expiresAt)
-	if err != nil {
+	if err := validateAccept(orderId, userId, expiresAt); err != nil {
 		return err
 	}
 
-	if err := appendOrder(order); err != nil {
+	order := &model.Order{Id: orderId,
+		UserId:    userId,
+		CreatedAt: time.Now(),
+		ExpiresAt: expiresAt,
+		Status:    model.StatusAccepted,
+	}
+
+	if err := s.orderRepo.Create(context.TODO(), order); err != nil {
 		return err
 	}
 

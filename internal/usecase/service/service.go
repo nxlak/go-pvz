@@ -2,6 +2,8 @@ package service
 
 import (
 	"time"
+
+	order "github.com/nxlak/go-pvz/internal/repository/storage"
 )
 
 type Service interface {
@@ -12,8 +14,10 @@ type Service interface {
 	IssueOrder(userId string, orderIds []string) (map[string]error, error)
 }
 
-type ServiceImpl struct{}
+type ServiceImpl struct {
+	orderRepo order.Repository
+}
 
-func NewService() *ServiceImpl {
-	return &ServiceImpl{}
+func NewService(orderRepo order.Repository) *ServiceImpl {
+	return &ServiceImpl{orderRepo: orderRepo}
 }
