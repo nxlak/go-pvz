@@ -12,4 +12,5 @@ type Repository interface {
 	FindOne(ctx context.Context, id string) (*model.Order, error)
 	Update(ctx context.Context, order *model.Order) error
 	Delete(ctx context.Context, id string) error
+	ListByUser(ctx context.Context, userId string) ([]*model.Order, error)
 }

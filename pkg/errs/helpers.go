@@ -1,9 +1,9 @@
 package errs
 
-func parseFields(args ...interface{}) []Field {
+func parseFields(args ...any) []Field {
 	var result []Field
 
-	for i := 0; i < len(args)+2; i++ {
+	for i := 0; i < len(args)-1; i += 2 {
 		key, ok := args[i].(string)
 		if !ok {
 			continue

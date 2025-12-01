@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	storage "github.com/nxlak/go-pvz/internal/config"
+	"github.com/nxlak/go-pvz/internal/config"
 	"github.com/nxlak/go-pvz/pkg/utils"
 )
 
@@ -25,7 +25,7 @@ type Client interface {
 	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 }
 
-func NewClient(ctx context.Context, sc storage.StorageConfig) (*pgxpool.Pool, error) {
+func NewClient(ctx context.Context, sc config.StorageConfig) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s", sc.Username, sc.Password, sc.Host, sc.Port, sc.Database)
 
 	cfg, err := pgxpool.ParseConfig(dsn)

@@ -102,10 +102,25 @@ func (r *repository) FindOne(ctx context.Context, id string) (*model.Order, erro
 	return &o, nil
 }
 
-func (r *repository) FindAll(ctx context.Context) (o []*model.Order, err error) {
+func (r *repository) FindAll(ctx context.Context) ([]*model.Order, error) {
 	rows, err := r.client.Query(ctx, listAllSQL)
 	if err != nil {
 		return nil, errs.Wrap(errs.CodeDatabaseError, "failed to list all orders", err)
+	}
+	defer rows.Close()
+
+	orders, err := scanOrders(rows)
+	if err != nil {
+		return nil, errs.Wrap(errs.CodeDatabaseError, "failed to scan orders", err)
+	}
+
+	return orders, nil
+}
+
+func (r *repository) ListByUser(ctx context.Context, userId string) ([]*model.Order, error) {
+	rows, err := r.client.Query(ctx, listByUserSQL, userId)
+	if err != nil {
+		return nil, errs.Wrap(errs.CodeDatabaseError, "failed to list orders by user", err)
 	}
 	defer rows.Close()
 

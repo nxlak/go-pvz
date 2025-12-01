@@ -1,4 +1,4 @@
-package storage
+package config
 
 import (
 	"log"
@@ -26,7 +26,7 @@ func GetConfig() *Config {
 	once.Do(func() {
 		log.Println("reading app config")
 		instance = &Config{}
-		if err := cleanenv.ReadConfig("config.yaml", instance); err != nil {
+		if err := cleanenv.ReadConfig("../config.yaml", instance); err != nil {
 			help, _ := cleanenv.GetDescription(instance, nil)
 			log.Println(help)
 			log.Fatal(err)

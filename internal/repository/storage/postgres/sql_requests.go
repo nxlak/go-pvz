@@ -40,4 +40,12 @@ const (
 			package, weight, price, total_price
 		FROM orders
 		ORDER BY created_at ASC, id ASC;`
+
+	listByUserSQL = `
+		SELECT
+			id, user_id, status, expires_at,
+			issued_at, returned_at, created_at,
+			package, weight, price, total_price
+		FROM orders
+		WHERE user_id = $1`
 )

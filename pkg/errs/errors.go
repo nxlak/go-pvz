@@ -7,7 +7,7 @@ import (
 
 type Field struct {
 	Key   string
-	Value interface{}
+	Value any
 }
 
 type AppError struct {
@@ -33,7 +33,7 @@ func (e *AppError) Error() string {
 	return b.String()
 }
 
-func New(code, message string, fields ...interface{}) *AppError {
+func New(code, message string, fields ...any) *AppError {
 	return &AppError{
 		Code:    code,
 		Message: message,
@@ -41,7 +41,7 @@ func New(code, message string, fields ...interface{}) *AppError {
 	}
 }
 
-func Wrap(code, message string, err error, fields ...interface{}) *AppError {
+func Wrap(code, message string, err error, fields ...any) *AppError {
 	return &AppError{
 		Code:    code,
 		Err:     err,
