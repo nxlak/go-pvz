@@ -12,6 +12,8 @@ type Service interface {
 	ReturnOrder(orderId string) error
 
 	IssueOrder(userId string, orderIds []string) (map[string]error, error)
+
+	ReturnOrdersByUser(userId string, orderIds []string) (map[string]error, error)
 }
 
 type ServiceImpl struct {

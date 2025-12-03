@@ -1,0 +1,53 @@
+type: object
+required:
+  - id
+  - user_id
+  - status
+  - created_at
+properties:
+  id:
+    type: string
+    description: Уникальный идентификатор заказа
+    example: "order_12345"
+
+  user_id:
+    type: string
+    description: Идентификатор пользователя, оформившего заказ
+    example: "user_98765"
+
+  status:
+    type: string
+    description: Статус заказа
+    enum:
+      - ACCEPTED
+      - ISSUED
+      - RETURNED
+      - EXPIRED
+    example: "ACCEPTED"
+
+  created_at:
+    type: string
+    format: date-time
+    description: Время создания заказа
+    example: "2025-01-15T12:00:00Z"
+
+  expires_at:
+    type: string
+    format: date-time
+    nullable: true
+    description: Время истечения срока действия заказа
+    example: "2025-01-20T12:00:00Z"
+
+  issued_at:
+    type: string
+    format: date-time
+    nullable: true
+    description: Время, когда заказ был выдан
+    example: "2025-01-16T09:30:00Z"
+
+  returned_at:
+    type: string
+    format: date-time
+    nullable: true
+    description: Время возврата заказа
+    example: "2025-01-18T15:45:00Z"

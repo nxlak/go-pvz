@@ -1,0 +1,14 @@
+type: object
+required:
+  - user_id
+  - expires_at
+properties:
+  user_id:
+    type: string
+    description: Identifier of the user who accepts the order
+    example: "user_12345"
+  expires_at:
+    type: string
+    format: date-time
+    description: Expiration time for the order (RFC 3339 / ISO 8601)
+    example: "2025-12-31T23:59:59Z"

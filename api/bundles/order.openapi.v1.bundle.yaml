@@ -1,0 +1,235 @@
+openapi: 3.0.3
+info:
+  title: OrderService API
+  version: 1.0.0
+  description: API для работы с данными о заказах
+tags:
+  - name: Order
+    description: Операции с данными о заказах
+paths:
+  /api/v1/order/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Order identifier
+        schema:
+          type: string
+    get:
+      summary: Get order data by id
+      operationId: GetOrderById
+      tags:
+        - Order
+      responses:
+        '200':
+          description: Order information successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/order'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error'
+        '404':
+          description: Order data by id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internal_server_error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/generic_error'
+    put:
+      summary: Accept order
+      operationId: AcceptOrder
+      tags:
+        - Order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/update_order_request'
+      responses:
+        '200':
+          description: Order data successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/order'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/bad_request_error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internal_server_error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/generic_error'
+    delete:
+      summary: Return (delete) order by id
+      operationId: ReturnOrder
+      tags:
+        - Order
+      responses:
+        '204':
+          description: Order successfully returned (deleted)
+        '404':
+          description: Order data by id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/not_found_error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internal_server_error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/generic_error'
+components:
+  schemas:
+    generic_error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+        message:
+          type: string
+          description: Описание ошибки
+    order:
+      type: object
+      required:
+        - id
+        - user_id
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+          description: Уникальный идентификатор заказа
+          example: order_12345
+        user_id:
+          type: string
+          description: Идентификатор пользователя, оформившего заказ
+          example: user_98765
+        status:
+          type: string
+          description: Статус заказа
+          enum:
+            - ACCEPTED
+            - ISSUED
+            - RETURNED
+            - EXPIRED
+          example: ACCEPTED
+        created_at:
+          type: string
+          format: date-time
+          description: Время создания заказа
+          example: '2025-01-15T12:00:00Z'
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время истечения срока действия заказа
+          example: '2025-01-20T12:00:00Z'
+        issued_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время, когда заказ был выдан
+          example: '2025-01-16T09:30:00Z'
+        returned_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Время возврата заказа
+          example: '2025-01-18T15:45:00Z'
+    bad_request_error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+          example: 400
+        message:
+          type: string
+          description: Описание ошибки
+          example: 'Bad Request: Invalid parameter format'
+    not_found_error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+          example: 404
+        message:
+          type: string
+          description: Описание ошибки
+          example: Order by id 'Unknown' not found
+    internal_server_error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP-код ошибки
+          example: 500
+        message:
+          type: string
+          description: Описание ошибки
+          example: Internal server error occurred
+    update_order_request:
+      type: object
+      required:
+        - user_id
+        - expires_at
+      properties:
+        user_id:
+          type: string
+          description: Identifier of the user who accepts the order
+          example: user_12345
+        expires_at:
+          type: string
+          format: date-time
+          description: Expiration time for the order (RFC 3339 / ISO 8601)
+          example: '2025-12-31T23:59:59Z'
+x-ogen:
+  target: ./pkg/openapi/order/v1
+  package: order_v1
+  clean: true

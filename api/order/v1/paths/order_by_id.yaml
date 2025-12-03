@@ -1,0 +1,108 @@
+parameters:
+  - name: id
+    in: path
+    required: true
+    description: Order identifier
+    schema:
+      type: string
+
+get:
+  summary: Get order data by id
+  operationId: GetOrderById
+  tags:
+    - Order
+  responses:
+    '200':
+      description: Order information successfully retrieved
+      content:
+        application/json:
+          schema:
+            $ref: ../components/order.yaml
+    '404':
+      description: Order data by id not found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/not_found_error.yaml
+    '400':
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/bad_request_error.yaml
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/internal_server_error.yaml
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/generic_error.yaml
+
+put:
+  summary: Accept order
+  operationId: AcceptOrder
+  tags:
+    - Order
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/update_order_request.yaml
+  responses:
+    '200':
+      description: Order data successfully updated
+      content:
+        application/json:
+          schema:
+            $ref: ../components/order.yaml
+    '400':
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/bad_request_error.yaml
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/internal_server_error.yaml
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/generic_error.yaml
+
+delete:
+  summary: Return (delete) order by id
+  operationId: ReturnOrder
+  tags:
+    - Order
+  responses:
+    '204':
+      description: Order successfully returned (deleted)
+    '404':
+      description: Order data by id not found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/not_found_error.yaml
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/internal_server_error.yaml
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/generic_error.yaml
