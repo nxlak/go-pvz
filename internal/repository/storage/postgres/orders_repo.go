@@ -8,10 +8,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/nxlak/go-pvz/internal/domain/codes"
-	"github.com/nxlak/go-pvz/internal/domain/model"
 	order "github.com/nxlak/go-pvz/internal/repository/storage"
 	"github.com/nxlak/go-pvz/pkg/client/postgres"
 	"github.com/nxlak/go-pvz/pkg/errs"
+	order_v1 "github.com/nxlak/go-pvz/pkg/openapi/order/v1"
 )
 
 type repository struct {
@@ -22,15 +22,15 @@ func NewRepositoty(client postgres.Client) order.Repository {
 	return &repository{client: client}
 }
 
-func (r *repository) Create(ctx context.Context, order *model.Order) error {
+func (r *repository) Create(ctx context.Context, order *order_v1.Order) error {
 	_, err := r.client.Exec(ctx, insertOrderSQL,
-		order.Id,
-		order.UserId,
+		order.ID,
+		order.UserID,
 		order.Status,
 		order.CreatedAt,
-		order.ExpiresAt,
-		order.IssuedAt,
-		order.ReturnedAt,
+		order.ExpiresAt.Value,
+		order.IssuedAt.Value,
+		order.ReturnedAt.Value,
 	)
 	if err == nil {
 		return nil
@@ -45,23 +45,22 @@ func (r *repository) Create(ctx context.Context, order *model.Order) error {
 		errs.CodeDatabaseError,
 		"failed to insert order",
 		err,
-		"order_id", order.Id,
+		"order_id", order.ID,
 	)
 }
 
-func (r *repository) Update(ctx context.Context, order *model.Order) error {
+func (r *repository) Update(ctx context.Context, order *order_v1.Order) error {
 	tag, err := r.client.Exec(ctx, updateOrderSQL,
-		order.Id,
-		order.UserId,
+		order.ID,
+		order.UserID,
 		order.Status,
-		order.CreatedAt,
-		order.ExpiresAt,
-		order.IssuedAt,
-		order.ReturnedAt,
+		order.ExpiresAt.Value,
+		order.IssuedAt.Value,
+		order.ReturnedAt.Value,
 	)
 	if err != nil {
 		return errs.Wrap(errs.CodeDatabaseError,
-			"failed to update order", err, "order_id", order.Id)
+			"failed to update order", err, "order_id", order.ID)
 	}
 	if tag.RowsAffected() == 0 {
 		return codes.ErrOrderNotFound
@@ -81,16 +80,16 @@ func (r *repository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r *repository) FindOne(ctx context.Context, id string) (*model.Order, error) {
-	var o model.Order
+func (r *repository) FindOne(ctx context.Context, id string) (*order_v1.Order, error) {
+	var o order_v1.Order
 	if err := r.client.QueryRow(ctx, selectOrderSQL, id).Scan(
-		&o.Id,
-		&o.UserId,
+		&o.ID,
+		&o.UserID,
 		&o.Status,
 		&o.CreatedAt,
-		&o.ExpiresAt,
-		&o.IssuedAt,
-		&o.ReturnedAt,
+		&o.ExpiresAt.Value,
+		&o.IssuedAt.Value,
+		&o.ReturnedAt.Value,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, codes.ErrOrderNotFound
@@ -102,7 +101,7 @@ func (r *repository) FindOne(ctx context.Context, id string) (*model.Order, erro
 	return &o, nil
 }
 
-func (r *repository) FindAll(ctx context.Context) ([]*model.Order, error) {
+func (r *repository) FindAll(ctx context.Context) ([]*order_v1.Order, error) {
 	rows, err := r.client.Query(ctx, listAllSQL)
 	if err != nil {
 		return nil, errs.Wrap(errs.CodeDatabaseError, "failed to list all orders", err)
@@ -117,7 +116,7 @@ func (r *repository) FindAll(ctx context.Context) ([]*model.Order, error) {
 	return orders, nil
 }
 
-func (r *repository) ListByUser(ctx context.Context, userId string) ([]*model.Order, error) {
+func (r *repository) ListByUser(ctx context.Context, userId string) ([]*order_v1.Order, error) {
 	rows, err := r.client.Query(ctx, listByUserSQL, userId)
 	if err != nil {
 		return nil, errs.Wrap(errs.CodeDatabaseError, "failed to list orders by user", err)

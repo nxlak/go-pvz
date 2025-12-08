@@ -27,7 +27,7 @@ func encodeAcceptOrderResponse(response AcceptOrderRes, w http.ResponseWriter, s
 
 		return nil
 
-	case *BadRequestError:
+	case *AcceptOrderBadRequest:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(400)
 		span.SetStatus(codes.Error, http.StatusText(400))
@@ -40,7 +40,7 @@ func encodeAcceptOrderResponse(response AcceptOrderRes, w http.ResponseWriter, s
 
 		return nil
 
-	case *InternalServerError:
+	case *AcceptOrderInternalServerError:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(500)
 		span.SetStatus(codes.Error, http.StatusText(500))
@@ -73,7 +73,7 @@ func encodeGetOrderByIdResponse(response GetOrderByIdRes, w http.ResponseWriter,
 
 		return nil
 
-	case *BadRequestError:
+	case *GetOrderByIdBadRequest:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(400)
 		span.SetStatus(codes.Error, http.StatusText(400))
@@ -86,7 +86,7 @@ func encodeGetOrderByIdResponse(response GetOrderByIdRes, w http.ResponseWriter,
 
 		return nil
 
-	case *NotFoundError:
+	case *GetOrderByIdNotFound:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(404)
 		span.SetStatus(codes.Error, http.StatusText(404))
@@ -99,7 +99,7 @@ func encodeGetOrderByIdResponse(response GetOrderByIdRes, w http.ResponseWriter,
 
 		return nil
 
-	case *InternalServerError:
+	case *GetOrderByIdInternalServerError:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(500)
 		span.SetStatus(codes.Error, http.StatusText(500))
@@ -125,7 +125,7 @@ func encodeReturnOrderResponse(response ReturnOrderRes, w http.ResponseWriter, s
 
 		return nil
 
-	case *NotFoundError:
+	case *ReturnOrderNotFound:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(404)
 		span.SetStatus(codes.Error, http.StatusText(404))
@@ -138,7 +138,7 @@ func encodeReturnOrderResponse(response ReturnOrderRes, w http.ResponseWriter, s
 
 		return nil
 
-	case *InternalServerError:
+	case *ReturnOrderInternalServerError:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(500)
 		span.SetStatus(codes.Error, http.StatusText(500))
@@ -156,7 +156,66 @@ func encodeReturnOrderResponse(response ReturnOrderRes, w http.ResponseWriter, s
 	}
 }
 
-func encodeErrorResponse(response *GenericErrorStatusCode, w http.ResponseWriter, span trace.Span) error {
+func encodeUpdateOrderResponse(response UpdateOrderRes, w http.ResponseWriter, span trace.Span) error {
+	switch response := response.(type) {
+	case *Order:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		span.SetStatus(codes.Ok, http.StatusText(200))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *UpdateOrderBadRequest:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(400)
+		span.SetStatus(codes.Error, http.StatusText(400))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *UpdateOrderNotFound:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(404)
+		span.SetStatus(codes.Error, http.StatusText(404))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *UpdateOrderInternalServerError:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(500)
+		span.SetStatus(codes.Error, http.StatusText(500))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	default:
+		return errors.Errorf("unexpected response type: %T", response)
+	}
+}
+
+func encodeErrorResponse(response *AppErrorStatusCode, w http.ResponseWriter, span trace.Span) error {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	code := response.StatusCode
 	if code == 0 {

@@ -23,25 +23,25 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../components/errors/not_found_error.yaml
+            $ref: ../components/errors/app_error.yaml
     '400':
       description: Bad request - validation error
       content:
         application/json:
           schema:
-            $ref: ../components/errors/bad_request_error.yaml
+            $ref: ../components/errors/app_error.yaml
     '500':
       description: Internal server error
       content:
         application/json:
           schema:
-            $ref: ../components/errors/internal_server_error.yaml
+            $ref: ../components/errors/app_error.yaml
     default:
       description: Unexpected error
       content:
         application/json:
           schema:
-            $ref: ../components/errors/generic_error.yaml
+            $ref: ../components/errors/app_error.yaml
 
 put:
   summary: Accept order
@@ -66,19 +66,62 @@ put:
       content:
         application/json:
           schema:
-            $ref: ../components/errors/bad_request_error.yaml
+            $ref: ../components/errors/app_error.yaml
     '500':
       description: Internal server error
       content:
         application/json:
           schema:
-            $ref: ../components/errors/internal_server_error.yaml
+            $ref: ../components/errors/app_error.yaml
     default:
       description: Unexpected error
       content:
         application/json:
           schema:
-            $ref: ../components/errors/generic_error.yaml
+            $ref: ../components/errors/app_error.yaml
+
+patch:
+  summary: Update order data
+  operationId: UpdateOrder
+  tags:
+    - Order
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/patch_order_request.yaml
+  responses:
+    '200':
+      description: Order data successfully updated
+      content:
+        application/json:
+          schema:
+            $ref: ../components/order.yaml
+    '400':
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/app_error.yaml
+    '404':
+      description: Order data by id not found
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/app_error.yaml
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/app_error.yaml
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: ../components/errors/app_error.yaml
 
 delete:
   summary: Return (delete) order by id
@@ -93,16 +136,16 @@ delete:
       content:
         application/json:
           schema:
-            $ref: ../components/errors/not_found_error.yaml
+            $ref: ../components/errors/app_error.yaml
     '500':
       description: Internal server error
       content:
         application/json:
           schema:
-            $ref: ../components/errors/internal_server_error.yaml
+            $ref: ../components/errors/app_error.yaml
     default:
       description: Unexpected error
       content:
         application/json:
           schema:
-            $ref: ../components/errors/generic_error.yaml
+            $ref: ../components/errors/app_error.yaml

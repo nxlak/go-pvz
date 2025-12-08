@@ -7,192 +7,143 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
+	"github.com/go-faster/jx"
 )
 
-func (s *GenericErrorStatusCode) Error() string {
+func (s *AppErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
-// Ref: #/components/schemas/bad_request_error
-type BadRequestError struct {
-	// HTTP-код ошибки.
-	Code int `json:"code"`
-	// Описание ошибки.
+type AcceptOrderBadRequest AppError
+
+func (*AcceptOrderBadRequest) acceptOrderRes() {}
+
+type AcceptOrderInternalServerError AppError
+
+func (*AcceptOrderInternalServerError) acceptOrderRes() {}
+
+// Ref: #/components/schemas/app_error
+type AppError struct {
+	// Код бизнес-ошибки (например, ORDER_NOT_FOUND).
+	Code string `json:"code"`
+	// Человекочитаемое описание ошибки.
 	Message string `json:"message"`
+	// Дополнительные параметры ошибки (контекст).
+	Fields OptAppErrorFields `json:"fields"`
 }
 
 // GetCode returns the value of Code.
-func (s *BadRequestError) GetCode() int {
+func (s *AppError) GetCode() string {
 	return s.Code
 }
 
 // GetMessage returns the value of Message.
-func (s *BadRequestError) GetMessage() string {
+func (s *AppError) GetMessage() string {
 	return s.Message
 }
 
+// GetFields returns the value of Fields.
+func (s *AppError) GetFields() OptAppErrorFields {
+	return s.Fields
+}
+
 // SetCode sets the value of Code.
-func (s *BadRequestError) SetCode(val int) {
+func (s *AppError) SetCode(val string) {
 	s.Code = val
 }
 
 // SetMessage sets the value of Message.
-func (s *BadRequestError) SetMessage(val string) {
+func (s *AppError) SetMessage(val string) {
 	s.Message = val
 }
 
-func (*BadRequestError) acceptOrderRes()  {}
-func (*BadRequestError) getOrderByIdRes() {}
-
-// Ref: #/components/schemas/generic_error
-type GenericError struct {
-	// HTTP-код ошибки.
-	Code OptInt `json:"code"`
-	// Описание ошибки.
-	Message OptString `json:"message"`
+// SetFields sets the value of Fields.
+func (s *AppError) SetFields(val OptAppErrorFields) {
+	s.Fields = val
 }
 
-// GetCode returns the value of Code.
-func (s *GenericError) GetCode() OptInt {
-	return s.Code
+// Дополнительные параметры ошибки (контекст).
+type AppErrorFields map[string]jx.Raw
+
+func (s *AppErrorFields) init() AppErrorFields {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
 }
 
-// GetMessage returns the value of Message.
-func (s *GenericError) GetMessage() OptString {
-	return s.Message
-}
-
-// SetCode sets the value of Code.
-func (s *GenericError) SetCode(val OptInt) {
-	s.Code = val
-}
-
-// SetMessage sets the value of Message.
-func (s *GenericError) SetMessage(val OptString) {
-	s.Message = val
-}
-
-// GenericErrorStatusCode wraps GenericError with StatusCode.
-type GenericErrorStatusCode struct {
+// AppErrorStatusCode wraps AppError with StatusCode.
+type AppErrorStatusCode struct {
 	StatusCode int
-	Response   GenericError
+	Response   AppError
 }
 
 // GetStatusCode returns the value of StatusCode.
-func (s *GenericErrorStatusCode) GetStatusCode() int {
+func (s *AppErrorStatusCode) GetStatusCode() int {
 	return s.StatusCode
 }
 
 // GetResponse returns the value of Response.
-func (s *GenericErrorStatusCode) GetResponse() GenericError {
+func (s *AppErrorStatusCode) GetResponse() AppError {
 	return s.Response
 }
 
 // SetStatusCode sets the value of StatusCode.
-func (s *GenericErrorStatusCode) SetStatusCode(val int) {
+func (s *AppErrorStatusCode) SetStatusCode(val int) {
 	s.StatusCode = val
 }
 
 // SetResponse sets the value of Response.
-func (s *GenericErrorStatusCode) SetResponse(val GenericError) {
+func (s *AppErrorStatusCode) SetResponse(val AppError) {
 	s.Response = val
 }
 
-// Ref: #/components/schemas/internal_server_error
-type InternalServerError struct {
-	// HTTP-код ошибки.
-	Code int `json:"code"`
-	// Описание ошибки.
-	Message string `json:"message"`
-}
+type GetOrderByIdBadRequest AppError
 
-// GetCode returns the value of Code.
-func (s *InternalServerError) GetCode() int {
-	return s.Code
-}
+func (*GetOrderByIdBadRequest) getOrderByIdRes() {}
 
-// GetMessage returns the value of Message.
-func (s *InternalServerError) GetMessage() string {
-	return s.Message
-}
+type GetOrderByIdInternalServerError AppError
 
-// SetCode sets the value of Code.
-func (s *InternalServerError) SetCode(val int) {
-	s.Code = val
-}
+func (*GetOrderByIdInternalServerError) getOrderByIdRes() {}
 
-// SetMessage sets the value of Message.
-func (s *InternalServerError) SetMessage(val string) {
-	s.Message = val
-}
+type GetOrderByIdNotFound AppError
 
-func (*InternalServerError) acceptOrderRes()  {}
-func (*InternalServerError) getOrderByIdRes() {}
-func (*InternalServerError) returnOrderRes()  {}
+func (*GetOrderByIdNotFound) getOrderByIdRes() {}
 
-// Ref: #/components/schemas/not_found_error
-type NotFoundError struct {
-	// HTTP-код ошибки.
-	Code int `json:"code"`
-	// Описание ошибки.
-	Message string `json:"message"`
-}
-
-// GetCode returns the value of Code.
-func (s *NotFoundError) GetCode() int {
-	return s.Code
-}
-
-// GetMessage returns the value of Message.
-func (s *NotFoundError) GetMessage() string {
-	return s.Message
-}
-
-// SetCode sets the value of Code.
-func (s *NotFoundError) SetCode(val int) {
-	s.Code = val
-}
-
-// SetMessage sets the value of Message.
-func (s *NotFoundError) SetMessage(val string) {
-	s.Message = val
-}
-
-func (*NotFoundError) getOrderByIdRes() {}
-func (*NotFoundError) returnOrderRes()  {}
-
-// NewOptInt returns new OptInt with value set to v.
-func NewOptInt(v int) OptInt {
-	return OptInt{
+// NewOptAppErrorFields returns new OptAppErrorFields with value set to v.
+func NewOptAppErrorFields(v AppErrorFields) OptAppErrorFields {
+	return OptAppErrorFields{
 		Value: v,
 		Set:   true,
 	}
 }
 
-// OptInt is optional int.
-type OptInt struct {
-	Value int
+// OptAppErrorFields is optional AppErrorFields.
+type OptAppErrorFields struct {
+	Value AppErrorFields
 	Set   bool
 }
 
-// IsSet returns true if OptInt was set.
-func (o OptInt) IsSet() bool { return o.Set }
+// IsSet returns true if OptAppErrorFields was set.
+func (o OptAppErrorFields) IsSet() bool { return o.Set }
 
 // Reset unsets value.
-func (o *OptInt) Reset() {
-	var v int
+func (o *OptAppErrorFields) Reset() {
+	var v AppErrorFields
 	o.Value = v
 	o.Set = false
 }
 
 // SetTo sets value to v.
-func (o *OptInt) SetTo(v int) {
+func (o *OptAppErrorFields) SetTo(v AppErrorFields) {
 	o.Set = true
 	o.Value = v
 }
 
 // Get returns value and boolean that denotes whether value was set.
-func (o OptInt) Get() (v int, ok bool) {
+func (o OptAppErrorFields) Get() (v AppErrorFields, ok bool) {
 	if !o.Set {
 		return v, false
 	}
@@ -200,7 +151,7 @@ func (o OptInt) Get() (v int, ok bool) {
 }
 
 // Or returns value if set, or given parameter if does not.
-func (o OptInt) Or(d int) int {
+func (o OptAppErrorFields) Or(d AppErrorFields) AppErrorFields {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -264,52 +215,6 @@ func (o OptNilDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptNilDateTime) Or(d time.Time) time.Time {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptString returns new OptString with value set to v.
-func NewOptString(v string) OptString {
-	return OptString{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptString is optional string.
-type OptString struct {
-	Value string
-	Set   bool
-}
-
-// IsSet returns true if OptString was set.
-func (o OptString) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptString) Reset() {
-	var v string
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptString) SetTo(v string) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptString) Get() (v string, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptString) Or(d string) string {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -406,6 +311,7 @@ func (s *Order) SetReturnedAt(val OptNilDateTime) {
 
 func (*Order) acceptOrderRes()  {}
 func (*Order) getOrderByIdRes() {}
+func (*Order) updateOrderRes()  {}
 
 // Статус заказа.
 type OrderStatus string
@@ -463,10 +369,46 @@ func (s *OrderStatus) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/patch_order_request
+type PatchOrderRequest struct {
+	// Order's status.
+	Status string `json:"status"`
+}
+
+// GetStatus returns the value of Status.
+func (s *PatchOrderRequest) GetStatus() string {
+	return s.Status
+}
+
+// SetStatus sets the value of Status.
+func (s *PatchOrderRequest) SetStatus(val string) {
+	s.Status = val
+}
+
+type ReturnOrderInternalServerError AppError
+
+func (*ReturnOrderInternalServerError) returnOrderRes() {}
+
 // ReturnOrderNoContent is response for ReturnOrder operation.
 type ReturnOrderNoContent struct{}
 
 func (*ReturnOrderNoContent) returnOrderRes() {}
+
+type ReturnOrderNotFound AppError
+
+func (*ReturnOrderNotFound) returnOrderRes() {}
+
+type UpdateOrderBadRequest AppError
+
+func (*UpdateOrderBadRequest) updateOrderRes() {}
+
+type UpdateOrderInternalServerError AppError
+
+func (*UpdateOrderInternalServerError) updateOrderRes() {}
+
+type UpdateOrderNotFound AppError
+
+func (*UpdateOrderNotFound) updateOrderRes() {}
 
 // Ref: #/components/schemas/update_order_request
 type UpdateOrderRequest struct {

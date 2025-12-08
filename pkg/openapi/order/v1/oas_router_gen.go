@@ -77,12 +77,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					s.handleGetOrderByIdRequest([1]string{
 						args[0],
 					}, elemIsEscaped, w, r)
+				case "PATCH":
+					s.handleUpdateOrderRequest([1]string{
+						args[0],
+					}, elemIsEscaped, w, r)
 				case "PUT":
 					s.handleAcceptOrderRequest([1]string{
 						args[0],
 					}, elemIsEscaped, w, r)
 				default:
-					s.notAllowed(w, r, "DELETE,GET,PUT")
+					s.notAllowed(w, r, "DELETE,GET,PATCH,PUT")
 				}
 
 				return
@@ -207,6 +211,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					r.name = GetOrderByIdOperation
 					r.summary = "Get order data by id"
 					r.operationID = "GetOrderById"
+					r.operationGroup = ""
+					r.pathPattern = "/api/v1/order/{id}"
+					r.args = args
+					r.count = 1
+					return r, true
+				case "PATCH":
+					r.name = UpdateOrderOperation
+					r.summary = "Update order data"
+					r.operationID = "UpdateOrder"
 					r.operationGroup = ""
 					r.pathPattern = "/api/v1/order/{id}"
 					r.args = args

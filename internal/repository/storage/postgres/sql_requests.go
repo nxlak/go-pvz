@@ -21,8 +21,8 @@ const (
 
 	selectOrderSQL = `
 		SELECT
-			id, user_id, status, expires_at,
-			issued_at, returned_at, created_at
+			id, user_id, status, created_at,
+			expires_at, issued_at, returned_at
 		FROM orders
 		WHERE id = $1;`
 

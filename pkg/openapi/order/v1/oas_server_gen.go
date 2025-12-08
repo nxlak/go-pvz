@@ -26,10 +26,16 @@ type Handler interface {
 	//
 	// DELETE /api/v1/order/{id}
 	ReturnOrder(ctx context.Context, params ReturnOrderParams) (ReturnOrderRes, error)
-	// NewError creates *GenericErrorStatusCode from error returned by handler.
+	// UpdateOrder implements UpdateOrder operation.
+	//
+	// Update order data.
+	//
+	// PATCH /api/v1/order/{id}
+	UpdateOrder(ctx context.Context, req *PatchOrderRequest, params UpdateOrderParams) (UpdateOrderRes, error)
+	// NewError creates *AppErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.
-	NewError(ctx context.Context, err error) *GenericErrorStatusCode
+	NewError(ctx context.Context, err error) *AppErrorStatusCode
 }
 
 // Server implements http server based on OpenAPI v3 specification and

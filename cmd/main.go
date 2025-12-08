@@ -1,19 +1,30 @@
 package main
 
 import (
-	"bufio"
-	"fmt"
+	"context"
+	"errors"
+	"log"
+	"net"
+	"net/http"
 	"os"
-	"strings"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"context"
-	"log"
-
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/nxlak/go-pvz/internal/config"
+	openapi "github.com/nxlak/go-pvz/internal/handler/http_server"
+	customMiddleware "github.com/nxlak/go-pvz/internal/middleware"
 	orderPostgres "github.com/nxlak/go-pvz/internal/repository/storage/postgres"
-	"github.com/nxlak/go-pvz/internal/usecase/service"
 	"github.com/nxlak/go-pvz/pkg/client/postgres"
+	order_v1 "github.com/nxlak/go-pvz/pkg/openapi/order/v1"
+)
+
+const (
+	httpPort          = "8080"
+	readHeaderTimeout = 5 * time.Second
+	shutdownTimeout   = 10 * time.Second
 )
 
 func main() {
@@ -25,82 +36,53 @@ func main() {
 	}
 
 	orderRepo := orderPostgres.NewRepositoty(client)
-	service := service.NewService(orderRepo)
 
-	scanner := bufio.NewScanner(os.Stdin)
+	orderHandler := openapi.NewOrderHandler(orderRepo)
 
-	fmt.Println("Введите команду (или 'exit' для выхода):")
-
-	for {
-		fmt.Print("> ")
-		if !scanner.Scan() {
-			break
-		}
-
-		input := scanner.Text()
-		input = strings.TrimSpace(input)
-
-		if input == "exit" {
-			break
-		}
-
-		if input == "" {
-			continue
-		}
-
-		parts := strings.Fields(input)
-		if len(parts) == 0 {
-			continue
-		}
-
-		switch parts[0] {
-		case "accept-order":
-			if len(parts) == 7 &&
-				parts[1] == "--order-id" &&
-				parts[3] == "--user-id" &&
-				parts[5] == "--expires" {
-				expires, err := time.Parse("2006-01-02", parts[6])
-				if err != nil {
-					fmt.Println("Ошибка даты. Используйте формат: yyyy-mm-dd")
-					continue
-				}
-				fmt.Printf("Принятие заказа %s для пользователя %s до %s\n", parts[2], parts[4], parts[6])
-				if err := service.AcceptOrder(parts[2], parts[4], expires); err != nil {
-					fmt.Printf("Ошибка при принятии заказа: %v\n", err)
-				} else {
-					fmt.Println("Заказ успешно принят!")
-				}
-			} else {
-				fmt.Println("Ошибка в команде. Проверьте правильность синтаксиса.")
-				fmt.Println("Используйте: accept-order --order-id <id> --user-id <id> --expires <yyyy-mm-dd>")
-			}
-
-		case "return-order":
-			if len(parts) == 3 && parts[1] == "--order-id" {
-				fmt.Printf("Возврат заказа %s\n", parts[2])
-				if err := service.ReturnOrder(parts[2]); err != nil {
-					fmt.Printf("Ошибка при возврате заказа: %v\n", err)
-				} else {
-					fmt.Println("Заказ успешно возвращен!")
-				}
-			} else {
-				fmt.Println("Ошибка в команде. Проверьте правильность синтаксиса.")
-				fmt.Println("Используйте: return-order --order-id <id>")
-			}
-
-		case "help":
-			fmt.Println("Доступные команды:")
-			fmt.Println("  accept-order --order-id <id> --user-id <id> --expires <yyyy-mm-dd>")
-			fmt.Println("  return-order --order-id <id>")
-			fmt.Println("  help - показать справку")
-			fmt.Println("  exit - выйти из программы")
-
-		default:
-			fmt.Println("Неизвестная команда. Введите 'help' для справки.")
-		}
+	orderServer, err := order_v1.NewServer(orderHandler)
+	if err != nil {
+		log.Fatalf("ошибка создания сервера OpenAPI: %v", err)
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Printf("Ошибка чтения ввода: %v\n", err)
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(10 * time.Second))
+	r.Use(customMiddleware.RequestLogger)
+
+	r.Mount("/", orderServer)
+
+	server := &http.Server{
+		Addr:              net.JoinHostPort("localhost", httpPort),
+		Handler:           r,
+		ReadHeaderTimeout: readHeaderTimeout, // Защита от Slowloris атак - тип DDoS-атаки, при которой
+		// атакующий умышленно медленно отправляет HTTP-заголовки, удерживая соединения открытыми и истощая
+		// пул доступных соединений на сервере. ReadHeaderTimeout принудительно закрывает соединение,
+		// если клиент не успел отправить все заголовки за отведенное время.
 	}
+
+	go func() {
+		log.Printf("🚀 HTTP-сервер запущен на порту %s\n", httpPort)
+		err = server.ListenAndServe()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Printf("❌ Ошибка запуска сервера: %v\n", err)
+		}
+	}()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Println("🛑 Завершение работы сервера...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	err = server.Shutdown(ctx)
+	if err != nil {
+		log.Printf("❌ Ошибка при остановке сервера: %v\n", err)
+	}
+
+	log.Println("✅ Сервер остановлен")
 }

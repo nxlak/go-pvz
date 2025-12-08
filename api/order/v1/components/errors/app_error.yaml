@@ -1,0 +1,19 @@
+type: object
+required:
+  - code
+  - message
+properties:
+  code:
+    type: string
+    description: "Код бизнес-ошибки (например, ORDER_NOT_FOUND)"
+    example: "ORDER_NOT_FOUND"
+  message:
+    type: string
+    description: "Человекочитаемое описание ошибки"
+    example: "order not found"
+  fields:
+    type: object
+    description: "Дополнительные параметры ошибки (контекст)"
+    additionalProperties: true
+    example:
+      order_id: "123"

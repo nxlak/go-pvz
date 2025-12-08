@@ -9,4 +9,5 @@ const (
 	AcceptOrderOperation  OperationName = "AcceptOrder"
 	GetOrderByIdOperation OperationName = "GetOrderById"
 	ReturnOrderOperation  OperationName = "ReturnOrder"
+	UpdateOrderOperation  OperationName = "UpdateOrder"
 )

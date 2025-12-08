@@ -12,3 +12,7 @@ type GetOrderByIdRes interface {
 type ReturnOrderRes interface {
 	returnOrderRes()
 }
+
+type UpdateOrderRes interface {
+	updateOrderRes()
+}

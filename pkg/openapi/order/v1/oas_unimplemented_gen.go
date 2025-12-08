@@ -40,10 +40,19 @@ func (UnimplementedHandler) ReturnOrder(ctx context.Context, params ReturnOrderP
 	return r, ht.ErrNotImplemented
 }
 
-// NewError creates *GenericErrorStatusCode from error returned by handler.
+// UpdateOrder implements UpdateOrder operation.
+//
+// Update order data.
+//
+// PATCH /api/v1/order/{id}
+func (UnimplementedHandler) UpdateOrder(ctx context.Context, req *PatchOrderRequest, params UpdateOrderParams) (r UpdateOrderRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// NewError creates *AppErrorStatusCode from error returned by handler.
 //
 // Used for common default response.
-func (UnimplementedHandler) NewError(ctx context.Context, err error) (r *GenericErrorStatusCode) {
-	r = new(GenericErrorStatusCode)
+func (UnimplementedHandler) NewError(ctx context.Context, err error) (r *AppErrorStatusCode) {
+	r = new(AppErrorStatusCode)
 	return r
 }

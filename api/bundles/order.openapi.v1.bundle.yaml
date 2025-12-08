@@ -32,25 +32,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/bad_request_error'
+                $ref: '#/components/schemas/app_error'
         '404':
           description: Order data by id not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error'
+                $ref: '#/components/schemas/app_error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/internal_server_error'
+                $ref: '#/components/schemas/app_error'
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/generic_error'
+                $ref: '#/components/schemas/app_error'
     put:
       summary: Accept order
       operationId: AcceptOrder
@@ -74,19 +74,61 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/bad_request_error'
+                $ref: '#/components/schemas/app_error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/internal_server_error'
+                $ref: '#/components/schemas/app_error'
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/generic_error'
+                $ref: '#/components/schemas/app_error'
+    patch:
+      summary: Update order data
+      operationId: UpdateOrder
+      tags:
+        - Order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patch_order_request'
+      responses:
+        '200':
+          description: Order data successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/order'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/app_error'
+        '404':
+          description: Order data by id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/app_error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/app_error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/app_error'
     delete:
       summary: Return (delete) order by id
       operationId: ReturnOrder
@@ -100,30 +142,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/not_found_error'
+                $ref: '#/components/schemas/app_error'
         '500':
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/internal_server_error'
+                $ref: '#/components/schemas/app_error'
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/generic_error'
+                $ref: '#/components/schemas/app_error'
 components:
   schemas:
-    generic_error:
+    app_error:
       type: object
+      required:
+        - code
+        - message
       properties:
         code:
-          type: integer
-          description: HTTP-код ошибки
+          type: string
+          description: Код бизнес-ошибки (например, ORDER_NOT_FOUND)
+          example: ORDER_NOT_FOUND
         message:
           type: string
-          description: Описание ошибки
+          description: Человекочитаемое описание ошибки
+          example: order not found
+        fields:
+          type: object
+          description: Дополнительные параметры ошибки (контекст)
+          additionalProperties: true
+          example:
+            order_id: '123'
     order:
       type: object
       required:
@@ -172,48 +225,6 @@ components:
           nullable: true
           description: Время возврата заказа
           example: '2025-01-18T15:45:00Z'
-    bad_request_error:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: HTTP-код ошибки
-          example: 400
-        message:
-          type: string
-          description: Описание ошибки
-          example: 'Bad Request: Invalid parameter format'
-    not_found_error:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: HTTP-код ошибки
-          example: 404
-        message:
-          type: string
-          description: Описание ошибки
-          example: Order by id 'Unknown' not found
-    internal_server_error:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: integer
-          description: HTTP-код ошибки
-          example: 500
-        message:
-          type: string
-          description: Описание ошибки
-          example: Internal server error occurred
     update_order_request:
       type: object
       required:
@@ -229,6 +240,15 @@ components:
           format: date-time
           description: Expiration time for the order (RFC 3339 / ISO 8601)
           example: '2025-12-31T23:59:59Z'
+    patch_order_request:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          description: Order's status
+          example: ISSUED
 x-ogen:
   target: ./pkg/openapi/order/v1
   package: order_v1
