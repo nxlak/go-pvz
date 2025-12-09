@@ -8,6 +8,6 @@ type OperationName = string
 const (
 	AcceptOrderOperation  OperationName = "AcceptOrder"
 	GetOrderByIdOperation OperationName = "GetOrderById"
+	IssueOrderOperation   OperationName = "IssueOrder"
 	ReturnOrderOperation  OperationName = "ReturnOrder"
-	UpdateOrderOperation  OperationName = "UpdateOrder"
 )

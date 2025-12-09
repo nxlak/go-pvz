@@ -88,8 +88,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/app_error'
     patch:
-      summary: Update order data
-      operationId: UpdateOrder
+      summary: Issue order
+      operationId: IssueOrder
       tags:
         - Order
       requestBody:

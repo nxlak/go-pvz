@@ -78,7 +78,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						args[0],
 					}, elemIsEscaped, w, r)
 				case "PATCH":
-					s.handleUpdateOrderRequest([1]string{
+					s.handleIssueOrderRequest([1]string{
 						args[0],
 					}, elemIsEscaped, w, r)
 				case "PUT":
@@ -217,9 +217,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					r.count = 1
 					return r, true
 				case "PATCH":
-					r.name = UpdateOrderOperation
-					r.summary = "Update order data"
-					r.operationID = "UpdateOrder"
+					r.name = IssueOrderOperation
+					r.summary = "Issue order"
+					r.operationID = "IssueOrder"
 					r.operationGroup = ""
 					r.pathPattern = "/api/v1/order/{id}"
 					r.args = args

@@ -31,21 +31,21 @@ func (UnimplementedHandler) GetOrderById(ctx context.Context, params GetOrderByI
 	return r, ht.ErrNotImplemented
 }
 
+// IssueOrder implements IssueOrder operation.
+//
+// Issue order.
+//
+// PATCH /api/v1/order/{id}
+func (UnimplementedHandler) IssueOrder(ctx context.Context, req *PatchOrderRequest, params IssueOrderParams) (r IssueOrderRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ReturnOrder implements ReturnOrder operation.
 //
 // Return (delete) order by id.
 //
 // DELETE /api/v1/order/{id}
 func (UnimplementedHandler) ReturnOrder(ctx context.Context, params ReturnOrderParams) (r ReturnOrderRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// UpdateOrder implements UpdateOrder operation.
-//
-// Update order data.
-//
-// PATCH /api/v1/order/{id}
-func (UnimplementedHandler) UpdateOrder(ctx context.Context, req *PatchOrderRequest, params UpdateOrderParams) (r UpdateOrderRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

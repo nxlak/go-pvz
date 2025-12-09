@@ -24,7 +24,7 @@ func encodeAcceptOrderRequest(
 	return nil
 }
 
-func encodeUpdateOrderRequest(
+func encodeIssueOrderRequest(
 	req *PatchOrderRequest,
 	r *http.Request,
 ) error {

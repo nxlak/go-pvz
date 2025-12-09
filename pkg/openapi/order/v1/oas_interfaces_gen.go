@@ -9,10 +9,10 @@ type GetOrderByIdRes interface {
 	getOrderByIdRes()
 }
 
-type ReturnOrderRes interface {
-	returnOrderRes()
+type IssueOrderRes interface {
+	issueOrderRes()
 }
 
-type UpdateOrderRes interface {
-	updateOrderRes()
+type ReturnOrderRes interface {
+	returnOrderRes()
 }

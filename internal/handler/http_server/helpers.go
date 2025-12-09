@@ -8,7 +8,7 @@ import (
 )
 
 func validateReturn(order *order_v1.Order) error {
-	if order.Status != order_v1.OrderStatusACCEPTED && order.ExpiresAt.Value.Before(time.Now()) {
+	if order.Status != order_v1.OrderStatusISSUED && order.ExpiresAt.Value.Before(time.Now()) {
 		return nil
 	}
 	return codes.ErrValidationFailed

@@ -22,8 +22,8 @@ func NewOrderHandler(storage order.Repository) *OrderHandler {
 	}
 }
 
-func (h *OrderHandler) GetOrderById(_ context.Context, params order_v1.GetOrderByIdParams) (order_v1.GetOrderByIdRes, error) {
-	order, err := h.storage.FindOne(context.TODO(), params.ID)
+func (h *OrderHandler) GetOrderById(ctx context.Context, params order_v1.GetOrderByIdParams) (order_v1.GetOrderByIdRes, error) {
+	order, err := h.storage.FindOne(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (h *OrderHandler) GetOrderById(_ context.Context, params order_v1.GetOrderB
 	return order, nil
 }
 
-func (h *OrderHandler) AcceptOrder(_ context.Context, req *order_v1.UpdateOrderRequest, params order_v1.AcceptOrderParams) (order_v1.AcceptOrderRes, error) {
+func (h *OrderHandler) AcceptOrder(ctx context.Context, req *order_v1.UpdateOrderRequest, params order_v1.AcceptOrderParams) (order_v1.AcceptOrderRes, error) {
 	if err := validateAccept(params.ID, req.UserID, req.ExpiresAt); err != nil {
 		return nil, err
 	}
@@ -44,15 +44,15 @@ func (h *OrderHandler) AcceptOrder(_ context.Context, req *order_v1.UpdateOrderR
 		Status:    order_v1.OrderStatusACCEPTED,
 	}
 
-	if err := h.storage.Create(context.TODO(), &order); err != nil {
+	if err := h.storage.Create(ctx, &order); err != nil {
 		return nil, err
 	}
 
 	return &order, nil
 }
 
-func (h *OrderHandler) ReturnOrder(_ context.Context, params order_v1.ReturnOrderParams) (order_v1.ReturnOrderRes, error) {
-	order, err := h.storage.FindOne(context.TODO(), params.ID)
+func (h *OrderHandler) ReturnOrder(ctx context.Context, params order_v1.ReturnOrderParams) (order_v1.ReturnOrderRes, error) {
+	order, err := h.storage.FindOne(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -61,15 +61,15 @@ func (h *OrderHandler) ReturnOrder(_ context.Context, params order_v1.ReturnOrde
 		return nil, err
 	}
 
-	if err := h.storage.Delete(context.TODO(), params.ID); err != nil {
+	if err := h.storage.Delete(ctx, params.ID); err != nil {
 		return nil, err
 	}
 
 	return &order_v1.ReturnOrderNoContent{}, nil
 }
 
-func (h *OrderHandler) UpdateOrder(ctx context.Context, req *order_v1.PatchOrderRequest, params order_v1.UpdateOrderParams) (order_v1.UpdateOrderRes, error) {
-	order, err := h.storage.FindOne(context.TODO(), params.ID)
+func (h *OrderHandler) IssueOrder(ctx context.Context, req *order_v1.PatchOrderRequest, params order_v1.IssueOrderParams) (order_v1.IssueOrderRes, error) {
+	order, err := h.storage.FindOne(ctx, params.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +84,14 @@ func (h *OrderHandler) UpdateOrder(ctx context.Context, req *order_v1.PatchOrder
 		ReturnedAt: order.ReturnedAt,
 	}
 
-	if err := h.storage.Update(context.TODO(), &updOrder); err != nil {
+	if err := h.storage.Update(ctx, &updOrder); err != nil {
 		return nil, err
 	}
 
 	return &updOrder, nil
 }
 
-func (h *OrderHandler) NewError(_ context.Context, err error) *order_v1.AppErrorStatusCode {
+func (h *OrderHandler) NewError(ctx context.Context, err error) *order_v1.AppErrorStatusCode {
 	status := http.StatusInternalServerError
 
 	apiErr := order_v1.AppError{

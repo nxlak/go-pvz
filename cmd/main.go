@@ -30,7 +30,10 @@ const (
 func main() {
 	cfg := config.GetConfig()
 
-	client, err := postgres.NewClient(context.TODO(), cfg.Storage)
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	client, err := postgres.NewClient(ctx, cfg.Storage)
 	if err != nil {
 		log.Fatalf("err %v", err)
 	}
@@ -75,9 +78,6 @@ func main() {
 	<-quit
 
 	log.Println("🛑 Завершение работы сервера...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	defer cancel()
 
 	err = server.Shutdown(ctx)
 	if err != nil {

@@ -39,18 +39,18 @@ type Invoker interface {
 	//
 	// GET /api/v1/order/{id}
 	GetOrderById(ctx context.Context, params GetOrderByIdParams) (GetOrderByIdRes, error)
+	// IssueOrder invokes IssueOrder operation.
+	//
+	// Issue order.
+	//
+	// PATCH /api/v1/order/{id}
+	IssueOrder(ctx context.Context, request *PatchOrderRequest, params IssueOrderParams) (IssueOrderRes, error)
 	// ReturnOrder invokes ReturnOrder operation.
 	//
 	// Return (delete) order by id.
 	//
 	// DELETE /api/v1/order/{id}
 	ReturnOrder(ctx context.Context, params ReturnOrderParams) (ReturnOrderRes, error)
-	// UpdateOrder invokes UpdateOrder operation.
-	//
-	// Update order data.
-	//
-	// PATCH /api/v1/order/{id}
-	UpdateOrder(ctx context.Context, request *PatchOrderRequest, params UpdateOrderParams) (UpdateOrderRes, error)
 }
 
 // Client implements OAS client.
@@ -285,6 +285,100 @@ func (c *Client) sendGetOrderById(ctx context.Context, params GetOrderByIdParams
 	return result, nil
 }
 
+// IssueOrder invokes IssueOrder operation.
+//
+// Issue order.
+//
+// PATCH /api/v1/order/{id}
+func (c *Client) IssueOrder(ctx context.Context, request *PatchOrderRequest, params IssueOrderParams) (IssueOrderRes, error) {
+	res, err := c.sendIssueOrder(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendIssueOrder(ctx context.Context, request *PatchOrderRequest, params IssueOrderParams) (res IssueOrderRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("IssueOrder"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.URLTemplateKey.String("/api/v1/order/{id}"),
+	}
+	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, IssueOrderOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/order/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeIssueOrderRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeIssueOrderResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ReturnOrder invokes ReturnOrder operation.
 //
 // Return (delete) order by id.
@@ -369,100 +463,6 @@ func (c *Client) sendReturnOrder(ctx context.Context, params ReturnOrderParams) 
 
 	stage = "DecodeResponse"
 	result, err := decodeReturnOrderResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// UpdateOrder invokes UpdateOrder operation.
-//
-// Update order data.
-//
-// PATCH /api/v1/order/{id}
-func (c *Client) UpdateOrder(ctx context.Context, request *PatchOrderRequest, params UpdateOrderParams) (UpdateOrderRes, error) {
-	res, err := c.sendUpdateOrder(ctx, request, params)
-	return res, err
-}
-
-func (c *Client) sendUpdateOrder(ctx context.Context, request *PatchOrderRequest, params UpdateOrderParams) (res UpdateOrderRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("UpdateOrder"),
-		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.URLTemplateKey.String("/api/v1/order/{id}"),
-	}
-	otelAttrs = append(otelAttrs, c.cfg.Attributes...)
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, UpdateOrderOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [2]string
-	pathParts[0] = "/api/v1/order/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PATCH", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeUpdateOrderRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeUpdateOrderResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

@@ -391,6 +391,120 @@ func (s *GetOrderByIdNotFound) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes IssueOrderBadRequest as json.
+func (s *IssueOrderBadRequest) Encode(e *jx.Encoder) {
+	unwrapped := (*AppError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes IssueOrderBadRequest from json.
+func (s *IssueOrderBadRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode IssueOrderBadRequest to nil")
+	}
+	var unwrapped AppError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = IssueOrderBadRequest(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *IssueOrderBadRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *IssueOrderBadRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes IssueOrderInternalServerError as json.
+func (s *IssueOrderInternalServerError) Encode(e *jx.Encoder) {
+	unwrapped := (*AppError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes IssueOrderInternalServerError from json.
+func (s *IssueOrderInternalServerError) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode IssueOrderInternalServerError to nil")
+	}
+	var unwrapped AppError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = IssueOrderInternalServerError(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *IssueOrderInternalServerError) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *IssueOrderInternalServerError) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes IssueOrderNotFound as json.
+func (s *IssueOrderNotFound) Encode(e *jx.Encoder) {
+	unwrapped := (*AppError)(s)
+
+	unwrapped.Encode(e)
+}
+
+// Decode decodes IssueOrderNotFound from json.
+func (s *IssueOrderNotFound) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode IssueOrderNotFound to nil")
+	}
+	var unwrapped AppError
+	if err := func() error {
+		if err := unwrapped.Decode(d); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = IssueOrderNotFound(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *IssueOrderNotFound) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *IssueOrderNotFound) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes AppErrorFields as json.
 func (o OptAppErrorFields) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -884,120 +998,6 @@ func (s *ReturnOrderNotFound) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ReturnOrderNotFound) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes UpdateOrderBadRequest as json.
-func (s *UpdateOrderBadRequest) Encode(e *jx.Encoder) {
-	unwrapped := (*AppError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes UpdateOrderBadRequest from json.
-func (s *UpdateOrderBadRequest) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode UpdateOrderBadRequest to nil")
-	}
-	var unwrapped AppError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = UpdateOrderBadRequest(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *UpdateOrderBadRequest) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *UpdateOrderBadRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes UpdateOrderInternalServerError as json.
-func (s *UpdateOrderInternalServerError) Encode(e *jx.Encoder) {
-	unwrapped := (*AppError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes UpdateOrderInternalServerError from json.
-func (s *UpdateOrderInternalServerError) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode UpdateOrderInternalServerError to nil")
-	}
-	var unwrapped AppError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = UpdateOrderInternalServerError(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *UpdateOrderInternalServerError) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *UpdateOrderInternalServerError) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode encodes UpdateOrderNotFound as json.
-func (s *UpdateOrderNotFound) Encode(e *jx.Encoder) {
-	unwrapped := (*AppError)(s)
-
-	unwrapped.Encode(e)
-}
-
-// Decode decodes UpdateOrderNotFound from json.
-func (s *UpdateOrderNotFound) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode UpdateOrderNotFound to nil")
-	}
-	var unwrapped AppError
-	if err := func() error {
-		if err := unwrapped.Decode(d); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return errors.Wrap(err, "alias")
-	}
-	*s = UpdateOrderNotFound(unwrapped)
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *UpdateOrderNotFound) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *UpdateOrderNotFound) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

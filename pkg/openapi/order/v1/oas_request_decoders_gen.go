@@ -85,7 +85,7 @@ func (s *Server) decodeAcceptOrderRequest(r *http.Request) (
 	}
 }
 
-func (s *Server) decodeUpdateOrderRequest(r *http.Request) (
+func (s *Server) decodeIssueOrderRequest(r *http.Request) (
 	req *PatchOrderRequest,
 	rawBody []byte,
 	close func() error,

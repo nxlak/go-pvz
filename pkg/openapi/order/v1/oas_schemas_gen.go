@@ -112,6 +112,18 @@ type GetOrderByIdNotFound AppError
 
 func (*GetOrderByIdNotFound) getOrderByIdRes() {}
 
+type IssueOrderBadRequest AppError
+
+func (*IssueOrderBadRequest) issueOrderRes() {}
+
+type IssueOrderInternalServerError AppError
+
+func (*IssueOrderInternalServerError) issueOrderRes() {}
+
+type IssueOrderNotFound AppError
+
+func (*IssueOrderNotFound) issueOrderRes() {}
+
 // NewOptAppErrorFields returns new OptAppErrorFields with value set to v.
 func NewOptAppErrorFields(v AppErrorFields) OptAppErrorFields {
 	return OptAppErrorFields{
@@ -311,7 +323,7 @@ func (s *Order) SetReturnedAt(val OptNilDateTime) {
 
 func (*Order) acceptOrderRes()  {}
 func (*Order) getOrderByIdRes() {}
-func (*Order) updateOrderRes()  {}
+func (*Order) issueOrderRes()   {}
 
 // Статус заказа.
 type OrderStatus string
@@ -397,18 +409,6 @@ func (*ReturnOrderNoContent) returnOrderRes() {}
 type ReturnOrderNotFound AppError
 
 func (*ReturnOrderNotFound) returnOrderRes() {}
-
-type UpdateOrderBadRequest AppError
-
-func (*UpdateOrderBadRequest) updateOrderRes() {}
-
-type UpdateOrderInternalServerError AppError
-
-func (*UpdateOrderInternalServerError) updateOrderRes() {}
-
-type UpdateOrderNotFound AppError
-
-func (*UpdateOrderNotFound) updateOrderRes() {}
 
 // Ref: #/components/schemas/update_order_request
 type UpdateOrderRequest struct {

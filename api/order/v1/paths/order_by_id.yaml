@@ -81,8 +81,8 @@ put:
             $ref: ../components/errors/app_error.yaml
 
 patch:
-  summary: Update order data
-  operationId: UpdateOrder
+  summary: Issue order
+  operationId: IssueOrder
   tags:
     - Order
   requestBody:

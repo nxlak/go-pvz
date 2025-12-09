@@ -146,13 +146,13 @@ func decodeGetOrderByIdParams(args [1]string, argsEscaped bool, r *http.Request)
 	return params, nil
 }
 
-// ReturnOrderParams is parameters of ReturnOrder operation.
-type ReturnOrderParams struct {
+// IssueOrderParams is parameters of IssueOrder operation.
+type IssueOrderParams struct {
 	// Order identifier.
 	ID string
 }
 
-func unpackReturnOrderParams(packed middleware.Parameters) (params ReturnOrderParams) {
+func unpackIssueOrderParams(packed middleware.Parameters) (params IssueOrderParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -163,7 +163,7 @@ func unpackReturnOrderParams(packed middleware.Parameters) (params ReturnOrderPa
 	return params
 }
 
-func decodeReturnOrderParams(args [1]string, argsEscaped bool, r *http.Request) (params ReturnOrderParams, _ error) {
+func decodeIssueOrderParams(args [1]string, argsEscaped bool, r *http.Request) (params IssueOrderParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]
@@ -212,13 +212,13 @@ func decodeReturnOrderParams(args [1]string, argsEscaped bool, r *http.Request) 
 	return params, nil
 }
 
-// UpdateOrderParams is parameters of UpdateOrder operation.
-type UpdateOrderParams struct {
+// ReturnOrderParams is parameters of ReturnOrder operation.
+type ReturnOrderParams struct {
 	// Order identifier.
 	ID string
 }
 
-func unpackUpdateOrderParams(packed middleware.Parameters) (params UpdateOrderParams) {
+func unpackReturnOrderParams(packed middleware.Parameters) (params ReturnOrderParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -229,7 +229,7 @@ func unpackUpdateOrderParams(packed middleware.Parameters) (params UpdateOrderPa
 	return params
 }
 
-func decodeUpdateOrderParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateOrderParams, _ error) {
+func decodeReturnOrderParams(args [1]string, argsEscaped bool, r *http.Request) (params ReturnOrderParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param := args[0]

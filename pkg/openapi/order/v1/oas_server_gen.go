@@ -20,18 +20,18 @@ type Handler interface {
 	//
 	// GET /api/v1/order/{id}
 	GetOrderById(ctx context.Context, params GetOrderByIdParams) (GetOrderByIdRes, error)
+	// IssueOrder implements IssueOrder operation.
+	//
+	// Issue order.
+	//
+	// PATCH /api/v1/order/{id}
+	IssueOrder(ctx context.Context, req *PatchOrderRequest, params IssueOrderParams) (IssueOrderRes, error)
 	// ReturnOrder implements ReturnOrder operation.
 	//
 	// Return (delete) order by id.
 	//
 	// DELETE /api/v1/order/{id}
 	ReturnOrder(ctx context.Context, params ReturnOrderParams) (ReturnOrderRes, error)
-	// UpdateOrder implements UpdateOrder operation.
-	//
-	// Update order data.
-	//
-	// PATCH /api/v1/order/{id}
-	UpdateOrder(ctx context.Context, req *PatchOrderRequest, params UpdateOrderParams) (UpdateOrderRes, error)
 	// NewError creates *AppErrorStatusCode from error returned by handler.
 	//
 	// Used for common default response.
