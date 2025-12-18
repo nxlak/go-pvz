@@ -8,6 +8,9 @@ vars:
   GOFUMPT_VERSION: 'v0.9.2'
   OGEN_VERSION: 'v1.18.0'
   YQ_VERSION: 'v4.49.2'
+  BUF_VERSION: '1.61.0'
+  PROTOC_GEN_GO_VERSION: 'v1.36.6'
+  PROTOC_GEN_GO_GRPC_VERSION: 'v1.5.1'
 
   # Используем относительные пути, чтобы не ломать Windows-пути
   BIN_DIR: './bin'
@@ -16,6 +19,11 @@ vars:
   GOFUMPT: '{{.BIN_DIR}}/gofumpt'
   OGEN: '{{.BIN_DIR}}/ogen'
   YQ: '{{.BIN_DIR}}/yq'
+  BUF: '{{.BIN_DIR}}/buf'
+  PROTOC_GEN_GO: '{{.BIN_DIR}}/protoc-gen-go'
+  PROTOC_GEN_GO_GRPC: '{{.BIN_DIR}}/protoc-gen-go-grpc'
+
+  PROTO_DIR: './proto'
 
   OPEN_API_ORDER_V1_BASE: './api/order/v1/order.openapi.yaml'
   OPEN_API_ORDER_V1_BUNDLE: './api/bundles/order.openapi.v1.bundle.yaml'
@@ -135,3 +143,60 @@ tasks:
         }
     status:
       - test -x {{.YQ}}
+
+  install-buf:
+    desc: "Устанавливает Buf в каталог bin"
+    cmds:
+      - |
+        [ -f {{.BUF}} ] || {
+          echo '📦 Устанавливаем buf {{.BUF_VERSION}}...'
+          mkdir -p {{.BIN_DIR}}
+          go install github.com/bufbuild/buf/cmd/buf@v{{.BUF_VERSION}}
+        }
+    status:
+      - test -x {{.BUF}}
+
+  proto:install-plugins:
+    desc: "Устанавливает protoc плагины в каталог bin"
+    cmds:
+      - |
+        [ -f {{.PROTOC_GEN_GO}} ] || {
+          echo '📦 Installing protoc-gen-go {{.PROTOC_GEN_GO_VERSION}}...'
+          mkdir -p {{.BIN_DIR}}
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@{{.PROTOC_GEN_GO_VERSION}}
+        }
+        [ -f {{.PROTOC_GEN_GO_GRPC}} ] || {
+          echo '📦 Installing protoc-gen-go-grpc {{.PROTOC_GEN_GO_GRPC_VERSION}}...'
+          mkdir -p {{.BIN_DIR}}
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.PROTOC_GEN_GO_GRPC_VERSION}}
+        }
+    status:
+      - test -x {{.PROTOC_GEN_GO}}
+      - test -x {{.PROTOC_GEN_GO_GRPC}}
+
+  proto:deps:
+    deps: [ install-buf ]
+    desc: "Обновить buf.lock и подтянуть зависимости (buf dep update)"
+    dir: "{{.PROTO_DIR}}"
+    cmds:
+      - |
+        echo "📌 Update buf deps..."
+        PATH="../bin:$PATH" ../bin/buf dep update .
+
+  proto:lint:
+    deps: [ proto:deps, proto:install-plugins ]
+    desc: "Проверка .proto-файлов на соответствие стилю (buf lint)"
+    dir: "{{.PROTO_DIR}}"
+    cmds:
+      - |
+        echo "🔎 Lint proto files (buf)..."
+        PATH="../bin:$PATH" ../bin/buf lint .
+
+  proto:gen:
+    deps: [ proto:deps, proto:install-plugins, proto:lint ]
+    desc: "Генерация Go-кода из .proto (buf generate)"
+    dir: "{{.PROTO_DIR}}"
+    cmds:
+      - |
+        echo "🚀 Generate gRPC (buf)..."
+        PATH="../bin:$PATH" ../bin/buf generate

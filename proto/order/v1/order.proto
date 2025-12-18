@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package order.v1;
+
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/nxlak/go-pvz/proto/order/v1;order_v1";
+
+// OrderService provides order operations.
+service OrderService {
+  rpc GetOrderById(GetOrderByIdRequest) returns (GetOrderByIdResponse);
+  rpc AcceptOrder(AcceptOrderRequest) returns (OrderResponse);
+  rpc ReturnOrder(ReturnOrderRequest) returns (OrderResponse);
+  rpc IssueOrder(IssueOrderRequest) returns (OrderResponse);
+}
+
+// OrderStatus represents current order state.
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_ACCEPTED = 1;
+  ORDER_STATUS_ISSUED = 2;
+  ORDER_STATUS_RETURNED = 3;
+  ORDER_STATUS_EXPIRED = 4;
+}
+
+// AcceptOrderStatus represents accept result status.
+enum AcceptOrderStatus {
+  ACCEPT_ORDER_STATUS_UNSPECIFIED = 0;
+  ACCEPT_ORDER_STATUS_ACCEPTED = 1;
+}
+
+// Order describes an order entity.
+message Order {
+  string uuid = 1;
+  string user_id = 2;
+  OrderStatus status = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp expires_at = 5;
+  google.protobuf.Timestamp issued_at = 6;
+  google.protobuf.Timestamp returned_at = 7;
+}
+
+// GetOrderByIdRequest requests an order by UUID.
+message GetOrderByIdRequest {
+  string uuid = 1;
+}
+
+// GetOrderByIdResponse returns an order by UUID.
+message GetOrderByIdResponse {
+  Order order = 1;
+}
+
+// AcceptOrderRequest accepts an order for a user.
+message AcceptOrderRequest {
+  string uuid = 1;
+  string user_id = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+// ReturnOrderRequest returns an order by UUID.
+message ReturnOrderRequest {
+  string uuid = 1;
+}
+
+// IssueOrderRequest issues an order by UUID.
+message IssueOrderRequest {
+  string uuid = 1;
+}
+
+// OrderResponse is a common response for order state changes.
+message OrderResponse {
+  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_schema) = {
+    json_schema: {
+      example: "{\"status\":\"ORDER_STATUS_RETURNED\",\"uuid\":\"12345\"}"
+    }
+  };
+
+  OrderStatus status = 1;
+  string uuid = 2;
+}
