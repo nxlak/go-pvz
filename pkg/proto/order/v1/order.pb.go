@@ -7,6 +7,7 @@
 package order_v1
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -128,13 +129,20 @@ func (AcceptOrderStatus) EnumDescriptor() ([]byte, []int) {
 
 // Order describes an order entity.
 type Order struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Status        OrderStatus            `protobuf:"varint,3,opt,name=status,proto3,enum=order.v1.OrderStatus" json:"status,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
-	IssuedAt      *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=issued_at,json=issuedAt,proto3" json:"issued_at,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uuid is a unique identifier of the order.
+	Uuid string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	// user_id is a user identifier.
+	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// status is a current order status.
+	Status OrderStatus `protobuf:"varint,3,opt,name=status,proto3,enum=order.v1.OrderStatus" json:"status,omitempty"`
+	// created_at is creation time.
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// expires_at is expiration time.
+	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
+	// issued_at is issue time (optional).
+	IssuedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=issued_at,json=issuedAt,proto3" json:"issued_at,omitempty"`
+	// returned_at is return time (optional).
 	ReturnedAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=returned_at,json=returnedAt,proto3" json:"returned_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -221,8 +229,9 @@ func (x *Order) GetReturnedAt() *timestamppb.Timestamp {
 
 // GetOrderByIdRequest requests an order by UUID.
 type GetOrderByIdRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uuid is order identifier.
+	Uuid          string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -311,9 +320,12 @@ func (x *GetOrderByIdResponse) GetOrder() *Order {
 
 // AcceptOrderRequest accepts an order for a user.
 type AcceptOrderRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uuid is order identifier.
+	Uuid string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	// user_id is user identifier.
+	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	// expires_at is expiration time.
 	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -372,8 +384,9 @@ func (x *AcceptOrderRequest) GetExpiresAt() *timestamppb.Timestamp {
 
 // ReturnOrderRequest returns an order by UUID.
 type ReturnOrderRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uuid is order identifier.
+	Uuid          string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -417,8 +430,9 @@ func (x *ReturnOrderRequest) GetUuid() string {
 
 // IssueOrderRequest issues an order by UUID.
 type IssueOrderRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// uuid is order identifier.
+	Uuid          string `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -517,34 +531,42 @@ var File_order_v1_order_proto protoreflect.FileDescriptor
 
 const file_order_v1_order_proto_rawDesc = "" +
 	"\n" +
-	"\x14order/v1/order.proto\x12\border.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xcf\x02\n" +
-	"\x05Order\x12\x12\n" +
-	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12-\n" +
-	"\x06status\x18\x03 \x01(\x0e2\x15.order.v1.OrderStatusR\x06status\x129\n" +
+	"\x14order/v1/order.proto\x12\border.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x84\x03\n" +
+	"\x05Order\x12\x1e\n" +
+	"\x04uuid\x18\x01 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\xb0\x01\x01R\x04uuid\x12 \n" +
+	"\auser_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06userId\x129\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x15.order.v1.OrderStatusB\n" +
+	"\xfaB\a\x82\x01\x04\x10\x01 \x00R\x06status\x12C\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\tcreatedAt\x12C\n" +
 	"\n" +
-	"expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x127\n" +
+	"expires_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\texpiresAt\x127\n" +
 	"\tissued_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\bissuedAt\x12;\n" +
 	"\vreturned_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"returnedAt\")\n" +
-	"\x13GetOrderByIdRequest\x12\x12\n" +
-	"\x04uuid\x18\x01 \x01(\tR\x04uuid\"=\n" +
-	"\x14GetOrderByIdResponse\x12%\n" +
-	"\x05order\x18\x01 \x01(\v2\x0f.order.v1.OrderR\x05order\"|\n" +
-	"\x12AcceptOrderRequest\x12\x12\n" +
-	"\x04uuid\x18\x01 \x01(\tR\x04uuid\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x129\n" +
+	"returnedAt\"5\n" +
+	"\x13GetOrderByIdRequest\x12\x1e\n" +
+	"\x04uuid\x18\x01 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\xb0\x01\x01R\x04uuid\"G\n" +
+	"\x14GetOrderByIdResponse\x12/\n" +
+	"\x05order\x18\x01 \x01(\v2\x0f.order.v1.OrderB\b\xfaB\x05\x8a\x01\x02\x10\x01R\x05order\"\x9b\x01\n" +
+	"\x12AcceptOrderRequest\x12\x1e\n" +
+	"\x04uuid\x18\x01 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\xb0\x01\x01R\x04uuid\x12 \n" +
+	"\auser_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06userId\x12C\n" +
 	"\n" +
-	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"(\n" +
-	"\x12ReturnOrderRequest\x12\x12\n" +
-	"\x04uuid\x18\x01 \x01(\tR\x04uuid\"'\n" +
-	"\x11IssueOrderRequest\x12\x12\n" +
-	"\x04uuid\x18\x01 \x01(\tR\x04uuid\"\x8c\x01\n" +
-	"\rOrderResponse\x12-\n" +
-	"\x06status\x18\x01 \x01(\x0e2\x15.order.v1.OrderStatusR\x06status\x12\x12\n" +
-	"\x04uuid\x18\x02 \x01(\tR\x04uuid:8\x92A5\n" +
+	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\b\xfaB\x05\xb2\x01\x02\b\x01R\texpiresAt\"4\n" +
+	"\x12ReturnOrderRequest\x12\x1e\n" +
+	"\x04uuid\x18\x01 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\xb0\x01\x01R\x04uuid\"3\n" +
+	"\x11IssueOrderRequest\x12\x1e\n" +
+	"\x04uuid\x18\x01 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\xb0\x01\x01R\x04uuid\"\xa4\x01\n" +
+	"\rOrderResponse\x129\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x15.order.v1.OrderStatusB\n" +
+	"\xfaB\a\x82\x01\x04\x10\x01 \x00R\x06status\x12\x1e\n" +
+	"\x04uuid\x18\x02 \x01(\tB\n" +
+	"\xfaB\ar\x05\x10\x01\xb0\x01\x01R\x04uuid:8\x92A5\n" +
 	"3J1{\"status\":\"ORDER_STATUS_RETURNED\",\"uuid\":\"12345\"}*\x94\x01\n" +
 	"\vOrderStatus\x12\x1c\n" +
 	"\x18ORDER_STATUS_UNSPECIFIED\x10\x00\x12\x19\n" +

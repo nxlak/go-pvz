@@ -3,6 +3,7 @@ module github.com/nxlak/go-pvz
 go 1.25.3
 
 require (
+	github.com/envoyproxy/protoc-gen-validate v1.3.0
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-faster/errors v0.7.1
 	github.com/go-faster/jx v1.2.0
