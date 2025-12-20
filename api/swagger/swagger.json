@@ -1,0 +1,268 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "order/v1/order.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "OrderService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/order/accept": {
+      "put": {
+        "operationId": "OrderService_AcceptOrder",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OrderResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "AcceptOrderRequest accepts an order for a user.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AcceptOrderRequest"
+            }
+          }
+        ],
+        "tags": [
+          "OrderService"
+        ]
+      }
+    },
+    "/api/v1/order/return/{uuid}": {
+      "delete": {
+        "operationId": "OrderService_ReturnOrder",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OrderResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uuid",
+            "description": "uuid is order identifier.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrderService"
+        ]
+      },
+      "patch": {
+        "operationId": "OrderService_IssueOrder",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OrderResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uuid",
+            "description": "uuid is order identifier.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrderService"
+        ]
+      }
+    },
+    "/api/v1/order/{uuid}": {
+      "get": {
+        "operationId": "OrderService_GetOrderById",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOrderByIdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uuid",
+            "description": "uuid is order identifier.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrderService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AcceptOrderRequest": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "description": "uuid is order identifier."
+        },
+        "user_id": {
+          "type": "string",
+          "description": "user_id is user identifier."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "expires_at is expiration time."
+        }
+      },
+      "description": "AcceptOrderRequest accepts an order for a user."
+    },
+    "v1GetOrderByIdResponse": {
+      "type": "object",
+      "properties": {
+        "order": {
+          "$ref": "#/definitions/v1Order"
+        }
+      },
+      "description": "GetOrderByIdResponse returns an order by UUID."
+    },
+    "v1Order": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string",
+          "description": "uuid is a unique identifier of the order."
+        },
+        "user_id": {
+          "type": "string",
+          "description": "user_id is a user identifier."
+        },
+        "status": {
+          "$ref": "#/definitions/v1OrderStatus",
+          "description": "status is a current order status."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "created_at is creation time."
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "expires_at is expiration time."
+        },
+        "issued_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "issued_at is issue time (optional)."
+        },
+        "returned_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "returned_at is return time (optional)."
+        }
+      },
+      "description": "Order describes an order entity."
+    },
+    "v1OrderResponse": {
+      "type": "object",
+      "example": {
+        "status": "ORDER_STATUS_RETURNED",
+        "uuid": "12345"
+      },
+      "properties": {
+        "status": {
+          "$ref": "#/definitions/v1OrderStatus"
+        },
+        "uuid": {
+          "type": "string"
+        }
+      },
+      "description": "OrderResponse is a common response for order state changes."
+    },
+    "v1OrderStatus": {
+      "type": "string",
+      "enum": [
+        "ORDER_STATUS_UNSPECIFIED",
+        "ORDER_STATUS_ACCEPTED",
+        "ORDER_STATUS_ISSUED",
+        "ORDER_STATUS_RETURNED",
+        "ORDER_STATUS_EXPIRED"
+      ],
+      "default": "ORDER_STATUS_UNSPECIFIED",
+      "description": "OrderStatus represents current order state."
+    }
+  }
+}

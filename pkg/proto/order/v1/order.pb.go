@@ -9,6 +9,7 @@ package order_v1
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -531,7 +532,7 @@ var File_order_v1_order_proto protoreflect.FileDescriptor
 
 const file_order_v1_order_proto_rawDesc = "" +
 	"\n" +
-	"\x14order/v1/order.proto\x12\border.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\x84\x03\n" +
+	"\x14order/v1/order.proto\x12\border.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\x84\x03\n" +
 	"\x05Order\x12\x1e\n" +
 	"\x04uuid\x18\x01 \x01(\tB\n" +
 	"\xfaB\ar\x05\x10\x01\xb0\x01\x01R\x04uuid\x12 \n" +
@@ -576,13 +577,13 @@ const file_order_v1_order_proto_rawDesc = "" +
 	"\x14ORDER_STATUS_EXPIRED\x10\x04*Z\n" +
 	"\x11AcceptOrderStatus\x12#\n" +
 	"\x1fACCEPT_ORDER_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
-	"\x1cACCEPT_ORDER_STATUS_ACCEPTED\x10\x012\xad\x02\n" +
-	"\fOrderService\x12M\n" +
-	"\fGetOrderById\x12\x1d.order.v1.GetOrderByIdRequest\x1a\x1e.order.v1.GetOrderByIdResponse\x12D\n" +
-	"\vAcceptOrder\x12\x1c.order.v1.AcceptOrderRequest\x1a\x17.order.v1.OrderResponse\x12D\n" +
-	"\vReturnOrder\x12\x1c.order.v1.ReturnOrderRequest\x1a\x17.order.v1.OrderResponse\x12B\n" +
+	"\x1cACCEPT_ORDER_STATUS_ACCEPTED\x10\x012\xb6\x03\n" +
+	"\fOrderService\x12k\n" +
+	"\fGetOrderById\x12\x1d.order.v1.GetOrderByIdRequest\x1a\x1e.order.v1.GetOrderByIdResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/order/{uuid}\x12e\n" +
+	"\vAcceptOrder\x12\x1c.order.v1.AcceptOrderRequest\x1a\x17.order.v1.OrderResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\x1a\x14/api/v1/order/accept\x12i\n" +
+	"\vReturnOrder\x12\x1c.order.v1.ReturnOrderRequest\x1a\x17.order.v1.OrderResponse\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/v1/order/return/{uuid}\x12g\n" +
 	"\n" +
-	"IssueOrder\x12\x1b.order.v1.IssueOrderRequest\x1a\x17.order.v1.OrderResponseB1Z/github.com/nxlak/go-pvz/proto/order/v1;order_v1b\x06proto3"
+	"IssueOrder\x12\x1b.order.v1.IssueOrderRequest\x1a\x17.order.v1.OrderResponse\"#\x82\xd3\xe4\x93\x02\x1d2\x1b/api/v1/order/return/{uuid}B1Z/github.com/nxlak/go-pvz/proto/order/v1;order_v1b\x06proto3"
 
 var (
 	file_order_v1_order_proto_rawDescOnce sync.Once

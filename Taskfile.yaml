@@ -11,6 +11,9 @@ vars:
   BUF_VERSION: '1.61.0'
   PROTOC_GEN_GO_VERSION: 'v1.36.6'
   PROTOC_GEN_GO_GRPC_VERSION: 'v1.5.1'
+  PROTOC_GEN_GRPC_GATEWAY_VERSION: 'v2.26.3'
+  PROTOC_GEN_VALIDATE_VERSION: 'v1.2.1'
+  PROTOC_GEN_OPENAPIV2_VERSION: 'v2.26.3'
 
   # Используем относительные пути, чтобы не ломать Windows-пути
   BIN_DIR: './bin'
@@ -22,6 +25,9 @@ vars:
   BUF: '{{.BIN_DIR}}/buf'
   PROTOC_GEN_GO: '{{.BIN_DIR}}/protoc-gen-go'
   PROTOC_GEN_GO_GRPC: '{{.BIN_DIR}}/protoc-gen-go-grpc'
+  PROTOC_GEN_GRPC_GATEWAY: '{{.BIN_DIR}}/protoc-gen-grpc-gateway'
+  PROTOC_GEN_VALIDATE: '{{.BIN_DIR}}/protoc-gen-validate'
+  PROTOC_GEN_OPENAPIV2: '{{.BIN_DIR}}/protoc-gen-openapiv2'
 
   PROTO_DIR: './proto'
 
@@ -170,9 +176,27 @@ tasks:
           mkdir -p {{.BIN_DIR}}
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.PROTOC_GEN_GO_GRPC_VERSION}}
         }
+        [ -f {{.PROTOC_GEN_GRPC_GATEWAY}} ] || {
+          echo '📦 Installing protoc-gen-grpc-gateway {{.PROTOC_GEN_GRPC_GATEWAY_VERSION}}...'
+          mkdir -p {{.BIN_DIR}}
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@{{.PROTOC_GEN_GRPC_GATEWAY_VERSION}}
+        }
+        [ -f {{.PROTOC_GEN_VALIDATE}} ] || {
+          echo '📦 Installing protoc-gen-validate...'
+          mkdir -p {{.BIN_DIR}}
+          go install github.com/envoyproxy/protoc-gen-validate@{{.PROTOC_GEN_VALIDATE_VERSION}}
+        }
+        [ -f {{.PROTOC_GEN_OPENAPIV2}} ] || {
+          echo '📦 Installing protoc-gen-openapiv2...'
+          mkdir -p {{.BIN_DIR}}
+          go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@{{.PROTOC_GEN_OPENAPIV2_VERSION}}
+        }
     status:
       - test -x {{.PROTOC_GEN_GO}}
       - test -x {{.PROTOC_GEN_GO_GRPC}}
+      - test -x {{.PROTOC_GEN_GRPC_GATEWAY}}
+      - test -x {{.PROTOC_GEN_VALIDATE}}
+      - test -x {{.PROTOC_GEN_OPENAPIV2}}
 
   proto:deps:
     deps: [ install-buf ]

@@ -4,15 +4,37 @@ package order.v1;
 
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/nxlak/go-pvz/proto/order/v1;order_v1";
 
 // OrderService provides order operations.
 service OrderService {
-  rpc GetOrderById(GetOrderByIdRequest) returns (GetOrderByIdResponse);
-  rpc AcceptOrder(AcceptOrderRequest) returns (OrderResponse);
-  rpc ReturnOrder(ReturnOrderRequest) returns (OrderResponse);
-  rpc IssueOrder(IssueOrderRequest) returns (OrderResponse);
+  rpc GetOrderById(GetOrderByIdRequest) returns (GetOrderByIdResponse) {
+     option (google.api.http) = {
+       get: "/api/v1/order/{uuid}"
+     };
+  }
+
+  rpc AcceptOrder(AcceptOrderRequest) returns (OrderResponse) {
+     option (google.api.http) = {
+       put: "/api/v1/order/accept"
+       body: "*"
+     };
+  }
+  
+  rpc ReturnOrder(ReturnOrderRequest) returns (OrderResponse) {
+     option (google.api.http) = {
+       delete: "/api/v1/order/return/{uuid}"
+     };
+  }
+  
+  rpc IssueOrder(IssueOrderRequest) returns (OrderResponse) {
+     option (google.api.http) = {
+       patch: "/api/v1/order/return/{uuid}"
+     };
+  }
 }
 
 // OrderStatus represents current order state.
@@ -32,40 +54,85 @@ enum AcceptOrderStatus {
 
 // Order describes an order entity.
 message Order {
-  string uuid = 1;
-  string user_id = 2;
-  OrderStatus status = 3;
-  google.protobuf.Timestamp created_at = 4;
-  google.protobuf.Timestamp expires_at = 5;
+  // uuid is a unique identifier of the order.
+  string uuid = 1 [
+    (validate.rules).string = {min_len: 1, uuid: true}
+  ];
+
+  // user_id is a user identifier.
+  string user_id = 2 [
+    (validate.rules).string = {min_len: 1}
+  ];
+
+  // status is a current order status.
+  OrderStatus status = 3 [
+    (validate.rules).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  // created_at is creation time.
+  google.protobuf.Timestamp created_at = 4 [
+    (validate.rules).timestamp = {required: true}
+  ];
+
+  // expires_at is expiration time.
+  google.protobuf.Timestamp expires_at = 5 [
+    (validate.rules).timestamp = {required: true}
+  ];
+
+  // issued_at is issue time (optional).
   google.protobuf.Timestamp issued_at = 6;
+
+  // returned_at is return time (optional).
   google.protobuf.Timestamp returned_at = 7;
 }
 
 // GetOrderByIdRequest requests an order by UUID.
 message GetOrderByIdRequest {
-  string uuid = 1;
+  // uuid is order identifier.
+  string uuid = 1 [
+    (validate.rules).string = {min_len: 1, uuid: true}
+  ];
 }
 
 // GetOrderByIdResponse returns an order by UUID.
 message GetOrderByIdResponse {
-  Order order = 1;
+  Order order = 1 [
+    (validate.rules).message = {required: true}
+  ];
 }
 
 // AcceptOrderRequest accepts an order for a user.
 message AcceptOrderRequest {
-  string uuid = 1;
-  string user_id = 2;
-  google.protobuf.Timestamp expires_at = 3;
+  // uuid is order identifier.
+  string uuid = 1 [
+    (validate.rules).string = {min_len: 1, uuid: true}
+  ];
+
+  // user_id is user identifier.
+  string user_id = 2 [
+    (validate.rules).string = {min_len: 1}
+  ];
+
+  // expires_at is expiration time.
+  google.protobuf.Timestamp expires_at = 3 [
+    (validate.rules).timestamp = {required: true}
+  ];
 }
 
 // ReturnOrderRequest returns an order by UUID.
 message ReturnOrderRequest {
-  string uuid = 1;
+  // uuid is order identifier.
+  string uuid = 1 [
+    (validate.rules).string = {min_len: 1, uuid: true}
+  ];
 }
 
 // IssueOrderRequest issues an order by UUID.
 message IssueOrderRequest {
-  string uuid = 1;
+  // uuid is order identifier.
+  string uuid = 1 [
+    (validate.rules).string = {min_len: 1, uuid: true}
+  ];
 }
 
 // OrderResponse is a common response for order state changes.
@@ -76,6 +143,11 @@ message OrderResponse {
     }
   };
 
-  OrderStatus status = 1;
-  string uuid = 2;
+  OrderStatus status = 1 [
+    (validate.rules).enum = {defined_only: true, not_in: [0]}
+  ];
+
+  string uuid = 2 [
+    (validate.rules).string = {min_len: 1, uuid: true}
+  ];
 }
